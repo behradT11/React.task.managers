@@ -3,11 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pars Trade | کامیونیتی حرفه‌ای ترید</title>
+    <title>Pars Trade | مرکز تخصصی ترید</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;700;900&display=swap" rel="stylesheet">
     
+    <!-- SciChart Library (Load from CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/scichart@3.2.303/_wasm/scichart.browser.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -17,19 +26,12 @@
                     },
                     colors: {
                         tradeGreen: '#00ff88',
-                        tradeDark: '#050505',
-                        tradeGray: '#1a1a1a',
-                        tradeGold: '#ffd700',
+                        tradeDark: '#000000',
+                        tradeGray: '#111111',
+                        tradeGold: '#d4af37',
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' },
-                        }
                     }
                 }
             }
@@ -38,251 +40,475 @@
 
     <style>
         body {
-            background-color: #050505;
+            background-color: #000000;
             color: #ffffff;
             overflow-x: hidden;
         }
 
-        /* Custom Scrollbar */
+        /* Minimalist Scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #0a0a0a; 
+            background: #000; 
         }
         ::-webkit-scrollbar-thumb {
             background: #333; 
-            border-radius: 4px;
+            border-radius: 0;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #00ff88; 
+            background: #555; 
         }
 
-        /* Grid Background Effect */
+        /* Subtle Grid */
         .bg-grid {
-            background-size: 50px 50px;
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
         }
 
-        /* Glitch Text Effect Classes */
-        .glitch-wrapper {
-            position: relative;
-        }
-        
-        .cursor-blink {
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        /* Neon Glow */
-        .neon-shadow {
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.1), 0 0 20px rgba(0, 255, 136, 0.1);
-        }
-        .neon-border:hover {
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
-            border-color: #00ff88;
-        }
-
-        /* Card Hover Effect */
+        /* Utility Classes */
         .glass-card {
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
-        .glass-card:hover {
-            transform: translateY(-5px);
-            background: rgba(25, 25, 25, 0.8);
-            border: 1px solid rgba(0, 255, 136, 0.2);
+        
+        .nav-item.active {
+            color: #00ff88;
+            position: relative;
+        }
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        /* Section Control */
+        .section-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        .section-content.active-section {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="font-sans antialiased selection:bg-tradeGreen selection:text-tradeDark">
+<body class="font-sans antialiased selection:bg-white selection:text-black">
 
-    <!-- Background Effects -->
+    <!-- Background Grid Only (No Colors) -->
     <div class="fixed inset-0 bg-grid pointer-events-none z-0"></div>
-    <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
-        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-tradeGreen/10 rounded-full blur-[100px]"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600/10 rounded-full blur-[100px]"></div>
-    </div>
 
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 top-0 left-0 border-b border-white/5 bg-black/80 backdrop-blur-md">
+    <nav class="fixed w-full z-50 top-0 left-0 border-b border-white/10 bg-black/90 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line text-tradeGreen text-2xl"></i>
-                    <span class="text-2xl font-black tracking-tighter">PARS <span class="text-tradeGreen">TRADE</span></span>
-                </div>
-                <div class="hidden md:block">
-                    <div class="flex items-baseline space-x-4 space-x-reverse">
-                        <a href="#" class="text-white hover:text-tradeGreen px-3 py-2 rounded-md text-sm font-medium transition-colors">خانه</a>
-                        <a href="#" class="text-gray-400 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors relative group cursor-not-allowed">
-                            لایو ترید
-                            <span class="absolute -top-2 -right-2 bg-tradeGold text-black text-[10px] px-1.5 py-0.5 rounded font-bold">به زودی</span>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-not-allowed">آکادمی</a>
-                        <a href="#contact" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-bold transition-all border border-white/10">
-                            پیام به مدیر
-                        </a>
+                
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                    <i class="fa-solid fa-layer-group text-white text-2xl"></i>
+                    <div class="flex flex-col">
+                        <span class="text-xl font-black tracking-tighter leading-none">PARS</span>
+                        <span class="text-xs font-light tracking-[0.3em] text-gray-400">TRADE</span>
                     </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="flex items-center space-x-6 space-x-reverse">
+                        <button onclick="switchTab('home')" id="nav-home" class="nav-item active text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">خانه</button>
+                        <button onclick="switchTab('chart')" id="nav-chart" class="nav-item text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">چارت</button>
+                        <button onclick="switchTab('live')" id="nav-live" class="nav-item text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">لایو</button>
+                        <button onclick="switchTab('education')" id="nav-education" class="nav-item text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">آموزش</button>
+                        <button onclick="switchTab('chat')" id="nav-chat" class="nav-item text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">گپ / چت</button>
+                    </div>
+                </div>
+
+                <!-- Login Button -->
+                <div class="hidden md:block">
+                    <button onclick="switchTab('login')" class="border border-white/20 hover:bg-white hover:text-black text-white px-6 py-2 rounded-full text-sm font-bold transition-all duration-300">
+                        لاگ‌این
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button class="text-white hover:text-gray-300">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="relative z-10 flex flex-col justify-center items-center min-h-screen pt-20 text-center px-4">
+    <!-- Main Content Container -->
+    <main class="relative z-10 pt-24 min-h-screen flex flex-col">
         
-        <!-- Animated Status Badge -->
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-900/20 border border-green-500/30 mb-8 animate-pulse-slow">
-            <span class="w-2 h-2 rounded-full bg-tradeGreen shadow-[0_0_10px_#00ff88]"></span>
-            <span class="text-xs font-mono text-tradeGreen tracking-widest uppercase">سیگنال فعال است</span>
-        </div>
-
-        <!-- Mystery Text / Scramble Effect -->
-        <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight">
-            <span class="block text-gray-500 text-2xl md:text-4xl font-light mb-2">فصل جدیدی از</span>
-            <span id="mystery-text" class="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-500">_____</span>
-            <span class="text-tradeGreen">.</span>
-        </h1>
-
-        <p class="mt-4 max-w-2xl text-xl text-gray-400 leading-relaxed">
-            جایی برای نخبگان بازار سرمایه. ما فقط ترید نمی‌کنیم، ما <span class="text-white font-bold">آینده</span> را می‌سازیم.
-            <br>
-            <span class="text-sm text-gray-600 mt-2 block">TradeCenterPro Community</span>
-        </p>
-
-        <!-- CTA Buttons -->
-        <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center w-full sm:w-auto">
-            <a href="https://t.me/TradeCenterPro" target="_blank" class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-black transition-all duration-200 bg-tradeGreen font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 w-full sm:w-auto overflow-hidden">
-                <span class="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-gray-900"></span>
-                <span class="relative flex items-center gap-2">
-                    عضویت در کانال
-                    <i class="fa-brands fa-telegram text-lg transition-transform group-hover:-translate-y-1 group-hover:translate-x-1"></i>
-                </span>
-            </a>
-            <a href="#contact" class="inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-transparent border border-white/20 rounded-xl hover:bg-white/5 focus:outline-none w-full sm:w-auto">
-                ارتباط با ما
-            </a>
-        </div>
-
-        <!-- Stats Section -->
-        <div class="mt-20 grid grid-cols-2 md:grid-cols-3 gap-8 text-center border-t border-white/5 pt-10 w-full max-w-4xl">
-            <div>
-                <div class="text-4xl font-bold text-white mb-1 flex justify-center items-center gap-1">
-                    <span id="counter-members">0</span><span>k</span><span class="text-tradeGreen text-xl">+</span>
-                </div>
-                <div class="text-sm text-gray-500 font-medium">تریدر فعال</div>
-            </div>
-            <div>
-                <div class="text-4xl font-bold text-white mb-1">
-                    <span>24</span><span class="text-tradeGreen">/</span><span>7</span>
-                </div>
-                <div class="text-sm text-gray-500 font-medium">پشتیبانی و سیگنال</div>
-            </div>
-            <div class="col-span-2 md:col-span-1">
-                <div class="text-4xl font-bold text-white mb-1">VIP</div>
-                <div class="text-sm text-gray-500 font-medium">استراتژی اختصاصی</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Message to Owner Section -->
-    <section id="contact" class="relative z-10 py-20 px-4 bg-black/40">
-        <div class="max-w-5xl mx-auto">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
+        <!-- HOME SECTION -->
+        <div id="home-section" class="section-content active-section flex-grow">
+            <section class="flex flex-col justify-center items-center text-center px-4 py-20">
                 
-                <!-- Text Side -->
-                <div>
-                    <h2 class="text-3xl md:text-4xl font-bold mb-4">
-                        صدای شما در <span class="text-tradeGreen">اتاق فکر</span>
-                    </h2>
-                    <p class="text-gray-400 mb-8 leading-relaxed">
-                        ما در پارس ترید به دنبال اهداف بزرگ هستیم. اگر پیشنهادی برای بهبود دارید یا می‌خواهید بخشی از تیم مدیریت باشید، مستقیماً با اونر (Parsfarsi) در ارتباط باشید.
-                    </p>
-                    
-                    <div class="space-y-4">
-                        <div class="glass-card p-4 rounded-xl flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                <i class="fa-brands fa-telegram text-2xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-500">آیدی تلگرام اونر</div>
-                                <div class="text-lg font-bold cursor-pointer hover:text-tradeGreen transition-colors" onclick="copyToClipboard('@Parsfarsi')">
-                                    @Parsfarsi <i class="fa-regular fa-copy text-xs ml-2 opacity-50"></i>
-                                </div>
-                            </div>
-                        </div>
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-none border border-white/20 mb-8 bg-white/5">
+                    <span class="w-1.5 h-1.5 bg-white animate-pulse"></span>
+                    <span class="text-xs font-mono text-gray-300 tracking-widest uppercase">MARKET IS OPEN</span>
+                </div>
 
-                        <div class="glass-card p-4 rounded-xl flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-tradeGreen/20 flex items-center justify-center text-tradeGreen">
-                                <i class="fa-solid fa-bullhorn text-2xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-500">کانال اصلی</div>
-                                <a href="https://t.me/TradeCenterPro" class="text-lg font-bold hover:text-tradeGreen transition-colors">
-                                    TradeCenterPro
-                                </a>
+                <h1 class="text-5xl md:text-8xl font-black mb-8 leading-none tracking-tight">
+                    <span class="block text-gray-600 text-2xl md:text-4xl font-light mb-4">فصل جدیدی از</span>
+                    <span id="mystery-text" class="text-white">_____</span>
+                </h1>
+
+                <p class="mt-2 max-w-2xl text-lg text-gray-400 leading-relaxed">
+                    قدرت گرفته توسط تکنولوژی. تحلیل‌های دقیق. کامیونیتی <span class="text-white font-bold">پارس ترید</span>.
+                </p>
+
+                <div class="mt-12 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <button onclick="switchTab('chart')" class="group px-8 py-4 bg-white text-black font-bold text-lg hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
+                        مشاهده چارت
+                        <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+                    </button>
+                    <a href="https://t.me/TradeCenterPro" target="_blank" class="px-8 py-4 border border-white/20 text-white font-bold text-lg hover:bg-white/10 transition-all">
+                        عضویت در کانال
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="mt-24 grid grid-cols-2 gap-12 md:gap-24 border-t border-white/10 pt-12">
+                    <div class="text-center">
+                        <div class="text-5xl font-black text-white mb-2 tracking-tighter flex items-center justify-center">
+                            <span id="counter-members">0</span>k
+                        </div>
+                        <div class="text-xs text-gray-500 uppercase tracking-widest">تریدر فعال</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-5xl font-black text-white mb-2 tracking-tighter">
+                            24<span class="text-gray-600">/</span>7
+                        </div>
+                        <div class="text-xs text-gray-500 uppercase tracking-widest">پشتیبانی بازار</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Message Section -->
+            <section class="py-20 bg-neutral-900/30 border-t border-white/5">
+                <div class="max-w-4xl mx-auto px-4 text-center">
+                    <h2 class="text-3xl font-bold mb-8">ارتباط مستقیم با مدیریت</h2>
+                    <div class="glass-card p-8 max-w-xl mx-auto">
+                        <form onsubmit="handleSubmit(event)" class="space-y-4 text-right">
+                            <input type="text" placeholder="نام مستعار" class="w-full bg-black border border-white/10 p-3 text-white focus:border-white outline-none transition-colors">
+                            <textarea rows="3" placeholder="پیشنهاد یا انتقاد شما..." class="w-full bg-black border border-white/10 p-3 text-white focus:border-white outline-none transition-colors"></textarea>
+                            <button class="w-full bg-white/10 hover:bg-white hover:text-black text-white py-3 font-bold transition-all">
+                                ارسال پیام
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- CHART SECTION (SciChart) -->
+        <div id="chart-section" class="section-content w-full h-[calc(100vh-6rem)] px-4 pb-4">
+            <div class="w-full h-full border border-white/10 bg-[#0c0c0c] relative">
+                <!-- Chart Header -->
+                <div class="absolute top-0 left-0 w-full z-20 flex justify-between items-center p-4 border-b border-white/5 bg-black/50 backdrop-blur-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-yellow-500/20 rounded flex items-center justify-center text-yellow-500">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold text-sm">GOLD (XAU/USD)</div>
+                            <div class="text-xs text-gray-400 flex items-center gap-1">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                Market Open
                             </div>
                         </div>
                     </div>
+                    <div class="flex gap-2">
+                        <span class="px-3 py-1 bg-white/5 text-xs text-gray-400 border border-white/5">1H</span>
+                        <span class="px-3 py-1 bg-white/5 text-xs text-gray-400 border border-white/5">Candles</span>
+                    </div>
                 </div>
+                
+                <!-- Chart Container -->
+                <div id="scichart-root" class="w-full h-full pt-16"></div>
+            </div>
+        </div>
 
-                <!-- Form Side -->
-                <div class="glass-card p-8 rounded-2xl neon-border">
-                    <form id="contactForm" onsubmit="handleSubmit(event)">
-                        <h3 class="text-xl font-bold mb-6 text-white border-b border-white/10 pb-4">ارسال پیشنهاد به مدیریت</h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-2">نام یا لقب شما</label>
-                                <input type="text" required class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-tradeGreen focus:ring-1 focus:ring-tradeGreen transition-all placeholder-gray-700" placeholder="مثلا: مستر تریدر">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-2">آیدی تلگرام (برای پاسخ)</label>
-                                <input type="text" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-tradeGreen focus:ring-1 focus:ring-tradeGreen transition-all placeholder-gray-700" placeholder="@YourID">
-                            </div>
+        <!-- LIVE SECTION (Placeholder) -->
+        <div id="live-section" class="section-content flex-grow">
+            <div class="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
+                <i class="fa-solid fa-satellite-dish text-6xl mb-4 opacity-50"></i>
+                <h2 class="text-2xl font-bold text-white mb-2">پخش زنده</h2>
+                <p>هیچ لایو استریمی در حال حاضر فعال نیست.</p>
+            </div>
+        </div>
 
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-2">پیام یا پیشنهاد</label>
-                                <textarea rows="4" required class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-tradeGreen focus:ring-1 focus:ring-tradeGreen transition-all placeholder-gray-700" placeholder="ایده خود را بنویسید..."></textarea>
-                            </div>
+        <!-- EDUCATION SECTION (Placeholder) -->
+        <div id="education-section" class="section-content flex-grow">
+            <div class="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
+                <i class="fa-solid fa-graduation-cap text-6xl mb-4 opacity-50"></i>
+                <h2 class="text-2xl font-bold text-white mb-2">آکادمی پارس ترید</h2>
+                <p>دوره های آموزشی به زودی بارگذاری می‌شوند.</p>
+            </div>
+        </div>
 
-                            <button type="submit" class="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-tradeGreen transition-all duration-300 transform active:scale-95 flex justify-center items-center gap-2">
-                                <span>ارسال پیام</span>
-                                <i class="fa-regular fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </form>
+        <!-- CHAT SECTION (Placeholder) -->
+        <div id="chat-section" class="section-content flex-grow">
+            <div class="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
+                <i class="fa-regular fa-comments text-6xl mb-4 opacity-50"></i>
+                <h2 class="text-2xl font-bold text-white mb-2">گپ کامیونیتی</h2>
+                <p>برای دسترسی به چت باید وارد شوید.</p>
+            </div>
+        </div>
+
+        <!-- LOGIN SECTION (Placeholder) -->
+        <div id="login-section" class="section-content flex-grow">
+            <div class="flex flex-col items-center justify-center min-h-[60vh]">
+                <div class="glass-card p-8 w-full max-w-md">
+                    <h2 class="text-2xl font-bold text-white mb-6 text-center">ورود به حساب کاربری</h2>
+                    <div class="space-y-4">
+                        <input type="text" placeholder="نام کاربری" class="w-full bg-black border border-white/10 p-3 text-white text-right focus:border-tradeGreen outline-none">
+                        <input type="password" placeholder="رمز عبور" class="w-full bg-black border border-white/10 p-3 text-white text-right focus:border-tradeGreen outline-none">
+                        <button class="w-full bg-white text-black font-bold py-3 hover:bg-gray-200 transition-colors">ورود</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+
+    </main>
 
     <!-- Footer -->
-    <footer class="border-t border-white/5 bg-black pt-12 pb-8 text-center relative z-10">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center">
-            <h2 class="text-2xl font-black tracking-tighter text-white/20 mb-4">PARS TRADE</h2>
-            <p class="text-gray-600 text-sm mb-8">تمامی حقوق برای کامیونیتی ترید سنتر پرو محفوظ است.</p>
-            
-            <div class="flex items-center gap-2 text-xs text-gray-700 border border-white/5 px-4 py-2 rounded-full">
-                <span>POWERED BY</span>
-                <a href="https://t.me/Behrise" class="text-tradeGreen font-bold hover:underline">@BEHRISE</a>
-            </div>
-        </div>
+    <footer class="border-t border-white/5 bg-black py-8 text-center">
+        <p class="text-gray-600 text-xs">
+            POWERED BY <a href="https://t.me/Behrise" class="text-white font-bold hover:underline">@BEHRISE</a>
+        </p>
     </footer>
 
-    <!-- JavaScript Functionality -->
+    <!-- LOGIC -->
     <script>
-        // --- Mystery Text Scrambler Effect ---
+        // --- 1. Navigation Logic ---
+        function switchTab(tabName) {
+            // Reset all nav items
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'text-white'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.add('text-gray-300'));
+            
+            // Highlight active nav if exists
+            const navBtn = document.getElementById(`nav-${tabName}`);
+            if(navBtn) {
+                navBtn.classList.add('active', 'text-white');
+                navBtn.classList.remove('text-gray-300');
+            }
+
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active-section'));
+            
+            // Show target section
+            const target = document.getElementById(`${tabName}-section`);
+            if(target) target.classList.add('active-section');
+
+            // Initialize Chart only if chart tab is selected and not already initialized
+            if(tabName === 'chart' && !window.chartInitialized) {
+                initSciChart();
+                window.chartInitialized = true;
+            }
+        }
+
+        // --- 2. SciChart Implementation (Converted from TS to JS) ---
+        
+        // Generate Realistic Gold Data (Mock)
+        function generateGoldData(count) {
+            const xValues = [];
+            const openValues = [];
+            const highValues = [];
+            const lowValues = [];
+            const closeValues = [];
+            const volumeValues = [];
+
+            let currentPrice = 2650.00; // Realistic Gold Price
+            let currentTime = new Date().getTime() - (count * 3600 * 1000); // Start 'count' hours ago
+
+            for (let i = 0; i < count; i++) {
+                const open = currentPrice;
+                // Random volatility
+                const volatility = (Math.random() - 0.5) * 10; 
+                const close = open + volatility;
+                
+                const high = Math.max(open, close) + Math.random() * 3;
+                const low = Math.min(open, close) - Math.random() * 3;
+                
+                const volume = Math.floor(Math.random() * 1000) + 500;
+
+                xValues.push(currentTime / 1000); // SciChart uses seconds for Unix
+                openValues.push(open);
+                highValues.push(high);
+                lowValues.push(low);
+                closeValues.push(close);
+                volumeValues.push(volume);
+
+                currentPrice = close;
+                currentTime += 3600 * 1000; // Add 1 hour
+            }
+
+            return { xValues, openValues, highValues, lowValues, closeValues, volumeValues };
+        }
+
+        async function initSciChart() {
+            // Configure to use WASM from CDN
+            SciChart.SciChartSurface.useWasmFromCDN();
+
+            // Imports from global SciChart namespace
+            const {
+                SciChartSurface,
+                NumericAxis,
+                DateTimeNumericAxis,
+                FastCandlestickRenderableSeries,
+                OhlcDataSeries,
+                XyDataSeries,
+                FastColumnRenderableSeries,
+                FastLineRenderableSeries,
+                XyMovingAverageFilter,
+                ZoomPanModifier,
+                ZoomExtentsModifier,
+                MouseWheelZoomModifier,
+                CursorModifier,
+                EAutoRange,
+                NumberRange,
+                ENumericFormat,
+                EFillPaletteMode,
+                parseColorToUIntArgb
+            } = SciChart;
+
+            // Create Surface
+            const { sciChartSurface, wasmContext } = await SciChartSurface.create("scichart-root", {
+                theme: { type: "Dark" } // Use built-in Dark theme
+            });
+
+            // X Axis (Time)
+            const xAxis = new DateTimeNumericAxis(wasmContext, {
+                autoRange: EAutoRange.Never,
+                axisTitle: "Time",
+                drawMajorGridLines: false
+            });
+            sciChartSurface.xAxes.add(xAxis);
+
+            // Y Axis (Price)
+            const yAxis = new NumericAxis(wasmContext, {
+                labelPrefix: "$",
+                labelPrecision: 2,
+                autoRange: EAutoRange.Always,
+                growBy: new NumberRange(0.1, 0.1),
+                drawMajorGridLines: true,
+                majorGridLineStyle: { color: "#333333", strokeThickness: 1, strokeDashArray: [2, 2] }
+            });
+            sciChartSurface.yAxes.add(yAxis);
+
+            // Hidden Y Axis for Volume
+            const yAxisVolume = new NumericAxis(wasmContext, {
+                id: "Y_AXIS_VOLUME",
+                isVisible: false,
+                growBy: new NumberRange(0, 4),
+                autoRange: EAutoRange.Always
+            });
+            sciChartSurface.yAxes.add(yAxisVolume);
+
+            // Get Data
+            const data = generateGoldData(300);
+            
+            // Setup Data Series
+            const candleDataSeries = new OhlcDataSeries(wasmContext, {
+                xValues: data.xValues,
+                openValues: data.openValues,
+                highValues: data.highValues,
+                lowValues: data.lowValues,
+                closeValues: data.closeValues,
+                dataSeriesName: "Gold (XAU/USD)"
+            });
+
+            // Render Candlesticks
+            const candlestickSeries = new FastCandlestickRenderableSeries(wasmContext, {
+                dataSeries: candleDataSeries,
+                strokeThickness: 1,
+                brushUp: "#00ff8877",       // Green with opacity
+                brushDown: "#ff333377",     // Red with opacity
+                strokeUp: "#00ff88",
+                strokeDown: "#ff3333",
+            });
+            sciChartSurface.renderableSeries.add(candlestickSeries);
+
+            // Moving Averages (EMA 20 & 50)
+            sciChartSurface.renderableSeries.add(
+                new FastLineRenderableSeries(wasmContext, {
+                    dataSeries: new XyMovingAverageFilter(candleDataSeries, { length: 20 }),
+                    stroke: "#00aaff",
+                    strokeThickness: 2
+                })
+            );
+            
+            sciChartSurface.renderableSeries.add(
+                new FastLineRenderableSeries(wasmContext, {
+                    dataSeries: new XyMovingAverageFilter(candleDataSeries, { length: 50 }),
+                    stroke: "#d4af37", // Gold color for MA 50
+                    strokeThickness: 2
+                })
+            );
+
+            // Volume Series with PaletteProvider logic implemented manually for simplicity in vanilla JS
+            // We create a custom palette provider object
+            const volumePaletteProvider = {
+                fillPaletteMode: EFillPaletteMode.SOLID,
+                onAttached: () => {},
+                onDetached: () => {},
+                overrideFillArgb: (x, y, index) => {
+                    const open = data.openValues[index];
+                    const close = data.closeValues[index];
+                    return open >= close ? parseColorToUIntArgb("#ff333377") : parseColorToUIntArgb("#00ff8877");
+                },
+                overrideStrokeArgb: (x, y, index) => {
+                    const open = data.openValues[index];
+                    const close = data.closeValues[index];
+                    return open >= close ? parseColorToUIntArgb("#ff3333") : parseColorToUIntArgb("#00ff88");
+                }
+            };
+
+            sciChartSurface.renderableSeries.add(
+                new FastColumnRenderableSeries(wasmContext, {
+                    dataSeries: new XyDataSeries(wasmContext, { xValues: data.xValues, yValues: data.volumeValues }),
+                    yAxisId: "Y_AXIS_VOLUME",
+                    paletteProvider: volumePaletteProvider
+                })
+            );
+
+            // Modifiers (Interactivity)
+            sciChartSurface.chartModifiers.add(
+                new ZoomPanModifier({ enableZoom: true }),
+                new ZoomExtentsModifier(),
+                new MouseWheelZoomModifier(),
+                new CursorModifier({
+                    crosshairStroke: "#ffffff",
+                    axisLabelFill: "#333333",
+                    axisLabelStroke: "#ffffff"
+                })
+            );
+
+            // Set Initial Range (Last 50 candles)
+            const lastIndex = data.xValues.length - 1;
+            const rangeStart = data.xValues[lastIndex - 50];
+            const rangeEnd = data.xValues[lastIndex];
+            xAxis.visibleRange = new NumberRange(rangeStart, rangeEnd);
+        }
+
+        // --- 3. Misc Logic (Text Scramble & Counter) ---
         class TextScramble {
             constructor(el) {
                 this.el = el;
@@ -316,10 +542,10 @@
                         output += to;
                     } else if (this.frame >= start) {
                         if (!char || Math.random() < 0.28) {
-                            char = this.randomChar();
+                            char = this.chars[Math.floor(Math.random() * this.chars.length)];
                             this.queue[i].char = char;
                         }
-                        output += `<span class="text-tradeGreen">${char}</span>`;
+                        output += `<span class="text-gray-500">${char}</span>`;
                     } else {
                         output += from;
                     }
@@ -332,42 +558,27 @@
                     this.frame++;
                 }
             }
-            randomChar() {
-                return this.chars[Math.floor(Math.random() * this.chars.length)];
-            }
         }
 
-        // Initialize Scrambler
-        const phases = [
-            'کامیونیتی ترید',
-            'قدرت تحلیل',
-            'اهداف بزرگ',
-            'پارس ترید'
-        ];
-        
+        const phrases = ['کامیونیتی ترید', 'تحلیل تکنیکال', 'اهداف بزرگ', 'پارس ترید'];
         const el = document.getElementById('mystery-text');
         const fx = new TextScramble(el);
-
         let counter = 0;
-        const next = () => {
-            fx.setText(phases[counter]).then(() => {
-                setTimeout(next, 2500); // Wait 2.5s before changing
-            });
-            counter = (counter + 1) % phases.length;
-        };
         
-        // Start after a slight delay
-        setTimeout(next, 500);
+        const nextPhrase = () => {
+            fx.setText(phrases[counter]).then(() => {
+                setTimeout(nextPhrase, 3000);
+            });
+            counter = (counter + 1) % phrases.length;
+        };
+        setTimeout(nextPhrase, 500);
 
-
-        // --- Stats Counter Animation ---
+        // Counter
         function animateValue(obj, start, end, duration) {
             let startTimestamp = null;
             const step = (timestamp) => {
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                // Ease out expo function for smooth landing
-                const easeProgress = 1 - Math.pow(1 - progress, 4); 
                 obj.innerHTML = (progress * (end - start) + start).toFixed(1);
                 if (progress < 1) {
                     window.requestAnimationFrame(step);
@@ -375,48 +586,18 @@
             };
             window.requestAnimationFrame(step);
         }
-
-        const memberCounter = document.getElementById("counter-members");
-        // Start animation when loaded
         setTimeout(() => {
-            animateValue(memberCounter, 0, 9.5, 2000);
+            animateValue(document.getElementById("counter-members"), 0, 9.5, 2000);
         }, 1000);
 
-
-        // --- Form Handling ---
-        function handleSubmit(event) {
-            event.preventDefault();
-            const btn = event.target.querySelector('button');
-            const originalContent = btn.innerHTML;
-            
-            // Loading state
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> در حال ارسال...';
-            btn.classList.add('opacity-75');
-            
-            setTimeout(() => {
-                // Success state
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> ارسال شد';
-                btn.classList.replace('bg-white', 'bg-tradeGreen');
-                event.target.reset();
-                
-                // Reset button after 3 seconds
-                setTimeout(() => {
-                    btn.innerHTML = originalContent;
-                    btn.classList.replace('bg-tradeGreen', 'bg-white');
-                    btn.classList.remove('opacity-75');
-                }, 3000);
-                
-                alert('پیام شما با موفقیت برای مدیریت ارسال شد. ممنون از مشارکت شما در کامیونیتی.');
-            }, 1500);
-        }
-
-        // --- Copy to Clipboard ---
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('آیدی کپی شد: ' + text);
-            });
+        function handleSubmit(e) {
+            e.preventDefault();
+            alert('پیام شما ارسال شد. با تشکر.');
         }
     </script>
 </body>
 </html>
+
+
+
 
