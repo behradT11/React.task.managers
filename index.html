@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pars Trade | آینده ترید اینجاست</title>
+    <title>Pars Trade | داشبورد پلن</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;700;900&display=swap" rel="stylesheet">
     
-    <!-- TradingView Widget Script -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
     <script>
+        // Global state to track login status
+        window.isLoggedIn = false;
+        
         tailwind.config = {
             theme: {
                 extend: {
@@ -29,6 +31,7 @@
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
                         'pulse-glow': 'pulseGlow 2s infinite',
+                        'success-ring': 'successRing 1s ease-out forwards'
                     },
                     keyframes: {
                         float: {
@@ -38,6 +41,10 @@
                         pulseGlow: {
                             '0%, 100%': { boxShadow: '0 0 5px #00ff88' },
                             '50%': { boxShadow: '0 0 20px #00ff88', borderColor: '#00ff88' },
+                        },
+                         successRing: {
+                            '0%': { transform: 'scale(0.8)', opacity: 0.5 },
+                            '100%': { transform: 'scale(1.1)', opacity: 0.0 }
                         }
                     }
                 }
@@ -81,6 +88,7 @@
             background: rgba(20, 20, 20, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
         }
         
         /* Section Transition */
@@ -110,71 +118,85 @@
             border: 2px solid #00ff88;
             z-index: 10;
         }
+
+        /* Custom Progress Bar for Metrics */
+        .progress-bar {
+            height: 8px;
+            background-color: #222;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #00ff88;
+            transition: width 1s ease-out;
+        }
+        .progress-fill.red {
+             background-color: #ef4444;
+        }
+
+        /* Login Button Animation */
+        .login-submit-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .login-submit-btn .ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 255, 136, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .login-submit-btn.success .ring {
+            animation: successRing 1s ease-out forwards;
+        }
     </style>
 </head>
 <body class="font-sans antialiased">
 
-    <!-- Background Canvas for Particles -->
     <canvas id="canvas-container"></canvas>
 
-    <!-- Navbar -->
     <nav class="fixed w-full z-50 top-0 bg-black/90 backdrop-blur-lg border-b border-white/10 h-20">
         <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
-            <!-- Logo -->
             <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
-                <div class="w-10 h-10 bg-gradient-to-br from-brand-green to-black rounded-lg flex items-center justify-center text-black font-bold text-xl">P</div>
+                <div class="w-10 h-10 bg-gradient-to-br from-brand-green to-black rounded-lg flex items-center justify-center text-black font-black text-xl">P</div>
                 <div>
                     <h1 class="font-black text-xl tracking-tighter leading-none">PARS <span class="text-brand-green">TRADE</span></h1>
                     <span class="text-[10px] text-gray-500 tracking-[0.3em]">COMMUNITY</span>
                 </div>
             </div>
 
-            <!-- Desktop Menu -->
             <div class="hidden md:flex items-center gap-1">
-                <button onclick="navigateTo('home')" class="nav-btn active px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">خانه</button>
+                <button onclick="navigateTo('home')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all active">خانه</button>
                 <button onclick="navigateTo('chart')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">چارت طلا</button>
-                <button onclick="navigateTo('live')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all relative">
-                    لایو ترید
-                    <span class="absolute top-5 left-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                </button>
+                <button onclick="navigateTo('live')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all relative">لایو ترید</button>
                 <button onclick="navigateTo('academy')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">آموزش</button>
                 <button onclick="navigateTo('chat')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">گپ</button>
+                <button id="nav-dynamic" onclick="handleDynamicNav()" class="px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all"></button>
             </div>
 
-            <!-- Action Button -->
-            <div class="flex items-center gap-4">
-                <button onclick="navigateTo('login')" class="hidden md:block px-6 py-2 rounded-full border border-white/20 hover:bg-white hover:text-black transition-all font-bold text-sm">
-                    ورود اعضا
-                </button>
-                <!-- Mobile Menu Icon -->
-                <button class="md:hidden text-white text-2xl" onclick="toggleMobileMenu()">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
+            <button class="md:hidden text-white text-2xl" onclick="toggleMobileMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
         </div>
     </nav>
 
-    <!-- Mobile Menu Overlay -->
     <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-40 hidden flex-col items-center justify-center gap-8 md:hidden">
         <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 text-white text-3xl"><i class="fa-solid fa-times"></i></button>
         <button onclick="navigateTo('home'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">خانه</button>
         <button onclick="navigateTo('chart'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">چارت</button>
         <button onclick="navigateTo('live'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">لایو</button>
-        <button onclick="navigateTo('login'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">ورود</button>
+        <button onclick="handleDynamicNav(); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green" id="mobile-nav-dynamic">ورود اعضا</button>
     </div>
 
-    <!-- Main Content Area -->
     <main class="pt-20 min-h-screen relative z-10">
 
-        <!-- HOME SECTION -->
         <section id="home" class="page-section active-section">
-            <!-- Hero -->
             <div class="min-h-[80vh] flex flex-col justify-center items-center text-center px-4 relative overflow-hidden">
-                
-                <!-- Floating Elements -->
-                <div class="absolute top-20 left-10 text-gray-800 text-9xl font-black opacity-10 select-none animate-float">BUY</div>
-                <div class="absolute bottom-20 right-10 text-gray-800 text-9xl font-black opacity-10 select-none animate-float" style="animation-delay: 2s">SELL</div>
-
                 <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-brand-green/30 bg-brand-green/5 mb-8 backdrop-blur-sm animate-pulse-glow">
                     <span class="w-2 h-2 bg-brand-green rounded-full shadow-[0_0_10px_#00ff88]"></span>
                     <span class="text-xs font-mono text-brand-green tracking-widest">SYSTEM ONLINE</span>
@@ -200,7 +222,6 @@
                     </a>
                 </div>
 
-                <!-- Stats Counter -->
                 <div class="mt-20 grid grid-cols-3 gap-8 md:gap-20 border-t border-white/10 pt-10">
                     <div>
                         <div class="text-4xl font-black text-white"><span id="counter">0</span>k</div>
@@ -217,56 +238,25 @@
                 </div>
             </div>
 
-            <!-- Features / Roadmap -->
-            <div class="max-w-6xl mx-auto px-4 py-20">
-                <div class="grid md:grid-cols-2 gap-16">
-                    <!-- Roadmap -->
-                    <div>
-                        <h3 class="text-2xl font-bold mb-8 flex items-center gap-2">
-                            <i class="fa-solid fa-map-location-dot text-brand-green"></i> نقشه راه (Roadmap)
-                        </h3>
-                        <div class="border-r-2 border-gray-800 mr-3 relative space-y-12 pr-8">
-                            <div class="timeline-item relative">
-                                <div class="text-brand-green font-bold text-sm mb-1">فاز اول - تکمیل شد</div>
-                                <h4 class="text-xl font-bold text-white">تاسیس کامیونیتی</h4>
-                                <p class="text-gray-500 text-sm mt-2">رسیدن به ۹.۵ هزار عضو فعال و ایجاد کانال‌های سیگنال.</p>
-                            </div>
-                            <div class="timeline-item relative">
-                                <div class="text-yellow-500 font-bold text-sm mb-1">فاز دوم - در حال اجرا</div>
-                                <h4 class="text-xl font-bold text-white">پلتفرم آموزشی & لایو ترید</h4>
-                                <p class="text-gray-500 text-sm mt-2">راه‌اندازی وبسایت، برگزاری لایوهای هفتگی و تحلیل‌های آنچین.</p>
-                            </div>
-                            <div class="timeline-item relative opacity-50">
-                                <div class="text-gray-500 font-bold text-sm mb-1">فاز سوم - آینده</div>
-                                <h4 class="text-xl font-bold text-white">صندوق سرمایه‌گذاری پارس</h4>
-                                <p class="text-gray-500 text-sm mt-2">ایجاد توکن اختصاصی و صندوق مدیریت سرمایه برای اعضای VIP.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contact Box -->
-                    <div class="glass p-8 rounded-2xl h-fit">
-                        <h3 class="text-2xl font-bold mb-6">ارتباط با مدیریت <span class="text-brand-green">@Parsfarsi</span></h3>
-                        <p class="text-gray-400 mb-6 text-sm">ایده‌های بزرگ از گفتگوهای کوچک شروع می‌شوند. پیام خود را مستقیماً ارسال کنید.</p>
-                        <form onsubmit="submitForm(event)" class="space-y-4">
-                            <input type="text" required placeholder="نام شما" class="w-full bg-black/50 border border-white/10 p-4 rounded-lg text-white focus:border-brand-green outline-none transition-colors">
-                            <textarea required rows="4" placeholder="متن پیام..." class="w-full bg-black/50 border border-white/10 p-4 rounded-lg text-white focus:border-brand-green outline-none transition-colors"></textarea>
-                            <button type="submit" class="w-full bg-brand-green text-black font-bold py-4 rounded-lg hover:bg-white transition-colors">
-                                ارسال پیام
-                            </button>
-                        </form>
-                    </div>
+            <div class="max-w-xl mx-auto px-4 py-20">
+                <div class="glass p-8 rounded-2xl h-fit">
+                    <h3 class="text-2xl font-bold mb-6 text-center">ارتباط با مدیریت <span class="text-brand-green">@Parsfarsi</span></h3>
+                    <form onsubmit="submitForm(event)" class="space-y-4">
+                        <input type="text" required placeholder="نام شما" class="w-full bg-black/50 border border-white/10 p-4 rounded-lg text-white focus:border-brand-green outline-none transition-colors">
+                        <textarea required rows="4" placeholder="متن پیام..." class="w-full bg-black/50 border border-white/10 p-4 rounded-lg text-white focus:border-brand-green outline-none transition-colors"></textarea>
+                        <button type="submit" class="w-full bg-brand-green text-black font-bold py-4 rounded-lg hover:bg-white transition-colors">
+                            ارسال پیام
+                        </button>
+                    </form>
                 </div>
             </div>
         </section>
 
-        <!-- CHART SECTION (TradingView Realtime) -->
         <section id="chart" class="page-section h-[calc(100vh-5rem)] w-full">
             <div class="w-full h-full flex flex-col">
-                <!-- Chart Controls -->
                 <div class="h-12 bg-gray-900 border-b border-white/5 flex items-center px-4 justify-between">
                     <div class="flex items-center gap-2 text-sm font-bold">
-                        <span class="text-brand-gold text-yellow-500">XAUUSD</span>
+                        <span class="text-yellow-500">XAUUSD</span>
                         <span class="text-gray-500">|</span>
                         <span class="text-white">GOLD SPOT</span>
                     </div>
@@ -275,12 +265,119 @@
                         Realtime Data Connected
                     </div>
                 </div>
-                <!-- TradingView Widget Container -->
-                <div id="tradingview_container" class="flex-grow w-full h-full"></div>
+                <div id="tradingview_container_chart" class="flex-grow w-full h-full"></div>
             </div>
         </section>
 
-        <!-- LIVE SECTION -->
+        <section id="dashboard" class="page-section min-h-[calc(100vh-5rem)] px-4 py-8">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-black mb-8 border-r-4 border-brand-green pr-4">داشبورد پلن ترید</h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+                    <div class="glass p-5 rounded-xl border-green-500/20 border-l-4">
+                        <div class="text-sm text-gray-400 mb-2">سود کل (PL)</div>
+                        <div class="text-3xl font-black text-brand-green">+ $1,580.45</div>
+                        <div class="text-sm text-gray-500 mt-1">+5.2%</div>
+                    </div>
+                    <div class="glass p-5 rounded-xl border-red-500/20 border-l-4">
+                        <div class="text-sm text-gray-400 mb-2">حد ضرر روزانه</div>
+                        <div class="text-3xl font-black text-red-500">$ -250.00</div>
+                        <div class="text-sm text-gray-500 mt-1">۲٪ از ۵٪ مجاز</div>
+                    </div>
+                    <div class="glass p-5 rounded-xl border-red-500/20 border-l-4">
+                        <div class="text-sm text-gray-400 mb-2">درودان کل</div>
+                        <div class="text-3xl font-black text-red-500">$ -420.00</div>
+                        <div class="text-sm text-gray-500 mt-1">۱.۴٪ از ۱۰٪ مجاز</div>
+                    </div>
+                    <div class="glass p-5 rounded-xl border-brand-gold/20 border-l-4">
+                        <div class="text-sm text-gray-400 mb-2">هدف پلن (PL)</div>
+                        <div class="text-3xl font-black text-brand-gold">$ 3,000.00</div>
+                        <div class="text-sm text-gray-500 mt-1">۱۰٪ هدف</div>
+                    </div>
+                </div>
+
+                <div class="glass p-6 rounded-xl mb-10">
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-400 mb-1">
+                            <span>پیشرفت به هدف نهایی (۱۰٪)</span>
+                            <span class="font-bold text-brand-green">۵.۲٪</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 52%;"></div>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <div class="flex justify-between text-sm text-gray-400 mb-1">
+                            <span>میزان استفاده از حد ضرر (Daily Loss)</span>
+                            <span class="font-bold text-red-500">۴۰٪</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill red" style="width: 40%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 h-[70vh]">
+                    <div class="md:col-span-2 glass p-2 rounded-xl h-full flex flex-col">
+                         <h3 class="text-xl font-bold mb-3 text-center text-gray-300">چارت اختصاصی XAUUSD</h3>
+                         <div id="tradingview_container_dashboard" class="flex-grow w-full"></div>
+                    </div>
+                    <div class="glass p-6 rounded-xl overflow-y-auto h-full">
+                        <h3 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">معاملات اخیر</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-sm border-b border-white/5 pb-2">
+                                <span class="text-brand-green font-bold">CLOSE | EURUSD</span>
+                                <span class="text-brand-green">+ $120.00</span>
+                                <span class="text-gray-500 text-xs">2 hours ago</span>
+                            </div>
+                             <div class="flex justify-between items-center text-sm border-b border-white/5 pb-2">
+                                <span class="text-red-500 font-bold">CLOSE | XAUUSD</span>
+                                <span class="text-red-500">- $70.00</span>
+                                <span class="text-gray-500 text-xs">5 hours ago</span>
+                            </div>
+                             <div class="flex justify-between items-center text-sm border-b border-white/5 pb-2">
+                                <span class="text-brand-green font-bold">CLOSE | GBPJPY</span>
+                                <span class="text-brand-green">+ $210.45</span>
+                                <span class="text-gray-500 text-xs">Yesterday</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm border-b border-white/5 pb-2">
+                                <span class="text-brand-green font-bold">CLOSE | BTCUSD</span>
+                                <span class="text-brand-green">+ $320.00</span>
+                                <span class="text-gray-500 text-xs">2 days ago</span>
+                            </div>
+                            <div class="text-center text-gray-600 pt-4">پایان لیست</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="login" class="page-section">
+            <div class="min-h-[80vh] flex items-center justify-center px-4">
+                <div class="glass p-10 rounded-2xl w-full max-w-md relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-green to-transparent"></div>
+                    <h2 class="text-2xl font-bold text-center mb-8">ورود به حساب کاربری</h2>
+                    <form onsubmit="handleLogin(event)" class="space-y-6">
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">ایمیل</label>
+                            <input type="email" id="login-email" class="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-brand-green outline-none text-left dir-ltr" required placeholder="test@gmail.com">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">رمز عبور</label>
+                            <input type="password" id="login-password" class="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-brand-green outline-none text-left dir-ltr" required placeholder="12345@test">
+                        </div>
+                        <button type="submit" id="login-submit" class="login-submit-btn w-full bg-white text-black font-bold py-3 rounded hover:bg-gray-200 transition-colors">
+                            ورود
+                            <div class="ring"></div>
+                        </button>
+                    </form>
+                    <div class="mt-6 text-center text-sm text-gray-500">
+                        حساب ندارید؟ <a href="#" class="text-brand-green hover:underline">ثبت نام</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="live" class="page-section">
             <div class="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
                 <div class="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mb-6 animate-pulse">
@@ -293,18 +390,12 @@
                 </a>
             </div>
         </section>
-
-        <!-- ACADEMY SECTION -->
         <section id="academy" class="page-section">
-            <div class="max-w-6xl mx-auto px-4 py-20">
+             <div class="max-w-6xl mx-auto px-4 py-20">
                 <h2 class="text-3xl font-bold mb-10 border-r-4 border-brand-green pr-4">آخرین آموزش‌ها</h2>
                 <div class="grid md:grid-cols-3 gap-6">
-                    <!-- Mock Course Cards -->
                     <div class="glass rounded-xl overflow-hidden group cursor-pointer">
-                        <div class="h-48 bg-gray-800 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80"></div>
-                            <i class="fa-solid fa-chart-pie absolute bottom-4 right-4 text-4xl text-white/20 group-hover:text-brand-green transition-colors"></i>
-                        </div>
+                        <div class="h-48 bg-gray-800 relative overflow-hidden flex items-center justify-center text-6xl text-white/20"><i class="fa-solid fa-chart-pie"></i></div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">روانشناسی بازار</h3>
                             <p class="text-gray-500 text-sm mb-4">چگونه احساسات خود را هنگام ضرر کنترل کنیم؟</p>
@@ -312,10 +403,7 @@
                         </div>
                     </div>
                     <div class="glass rounded-xl overflow-hidden group cursor-pointer">
-                        <div class="h-48 bg-gray-800 relative overflow-hidden">
-                             <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80"></div>
-                             <i class="fa-solid fa-wave-square absolute bottom-4 right-4 text-4xl text-white/20 group-hover:text-brand-green transition-colors"></i>
-                        </div>
+                        <div class="h-48 bg-gray-800 relative overflow-hidden flex items-center justify-center text-6xl text-white/20"><i class="fa-solid fa-wave-square"></i></div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">پرایس اکشن پیشرفته</h3>
                             <p class="text-gray-500 text-sm mb-4">شناسایی نواحی عرضه و تقاضای نهان.</p>
@@ -323,10 +411,7 @@
                         </div>
                     </div>
                      <div class="glass rounded-xl overflow-hidden group cursor-pointer">
-                        <div class="h-48 bg-gray-800 relative overflow-hidden">
-                             <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80"></div>
-                             <i class="fa-brands fa-bitcoin absolute bottom-4 right-4 text-4xl text-white/20 group-hover:text-brand-green transition-colors"></i>
-                        </div>
+                        <div class="h-48 bg-gray-800 relative overflow-hidden flex items-center justify-center text-6xl text-white/20"><i class="fa-brands fa-bitcoin"></i></div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">کریپتو یا فارکس؟</h3>
                             <p class="text-gray-500 text-sm mb-4">کدام بازار برای شروع سرمایه کم مناسب‌تر است؟</p>
@@ -336,32 +421,7 @@
                 </div>
             </div>
         </section>
-
-        <!-- LOGIN/CHAT SECTION -->
-        <section id="login" class="page-section">
-            <div class="min-h-[80vh] flex items-center justify-center px-4">
-                <div class="glass p-10 rounded-2xl w-full max-w-md relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-green to-transparent"></div>
-                    <h2 class="text-2xl font-bold text-center mb-8">ورود به حساب کاربری</h2>
-                    <form class="space-y-6">
-                        <div>
-                            <label class="block text-gray-400 text-sm mb-2">نام کاربری</label>
-                            <input type="text" class="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-brand-green outline-none text-left dir-ltr">
-                        </div>
-                        <div>
-                            <label class="block text-gray-400 text-sm mb-2">رمز عبور</label>
-                            <input type="password" class="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-brand-green outline-none text-left dir-ltr">
-                        </div>
-                        <button type="button" class="w-full bg-white text-black font-bold py-3 rounded hover:bg-gray-200 transition-colors">ورود</button>
-                    </form>
-                    <div class="mt-6 text-center text-sm text-gray-500">
-                        حساب ندارید؟ <a href="#" class="text-brand-green hover:underline">ثبت نام</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-         <section id="chat" class="page-section">
-             <!-- Same as Login for now per instructions -->
+        <section id="chat" class="page-section">
             <div class="min-h-[80vh] flex items-center justify-center px-4 text-center">
                  <div>
                      <i class="fa-solid fa-lock text-4xl text-gray-600 mb-4"></i>
@@ -374,10 +434,40 @@
 
     </main>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
         // 1. Navigation System (Robust)
+        function updateDynamicNav() {
+            const dynamicNav = document.getElementById('nav-dynamic');
+            const mobileDynamicNav = document.getElementById('mobile-nav-dynamic');
+            
+            if (window.isLoggedIn) {
+                dynamicNav.textContent = 'داشبورد';
+                dynamicNav.onclick = () => navigateTo('dashboard');
+                mobileDynamicNav.textContent = 'داشبورد';
+                mobileDynamicNav.onclick = () => { navigateTo('dashboard'); toggleMobileMenu(); };
+            } else {
+                dynamicNav.textContent = 'ورود اعضا';
+                dynamicNav.onclick = () => navigateTo('login');
+                mobileDynamicNav.textContent = 'ورود اعضا';
+                mobileDynamicNav.onclick = () => { navigateTo('login'); toggleMobileMenu(); };
+            }
+        }
+
+        function handleDynamicNav() {
+            if (window.isLoggedIn) {
+                navigateTo('dashboard');
+            } else {
+                navigateTo('login');
+            }
+        }
+
         function navigateTo(sectionId) {
+            // Check for secured access
+            if (sectionId === 'dashboard' && !window.isLoggedIn) {
+                 alert("برای دسترسی به داشبورد باید وارد حساب کاربری شوید.");
+                 return navigateTo('login');
+            }
+
             // Update Buttons
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -385,14 +475,21 @@
                 btn.classList.add('text-gray-400');
             });
             
-            // Find button corresponding to section (approximation)
-            const activeBtns = document.querySelectorAll(`button[onclick="navigateTo('${sectionId}')"]`);
-            activeBtns.forEach(btn => {
-                if(btn.classList.contains('nav-btn')) {
+            // Highlight active nav buttons
+            const allNavButtons = document.querySelectorAll(`button[onclick*="navigateTo('${sectionId}')"]`);
+            allNavButtons.forEach(btn => {
+                 if (btn.classList.contains('nav-btn')) {
                     btn.classList.add('active', 'text-white');
                     btn.classList.remove('text-gray-400');
                 }
             });
+            
+            // Handle dynamic nav button highlighting separately
+             if ((sectionId === 'login' || sectionId === 'dashboard') && document.getElementById('nav-dynamic')) {
+                 document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                 document.getElementById('nav-dynamic').classList.add('active', 'text-white');
+                 document.getElementById('nav-dynamic').classList.remove('text-gray-400');
+             }
 
             // Switch Sections
             document.querySelectorAll('.page-section').forEach(sec => {
@@ -404,9 +501,11 @@
                 target.classList.add('active-section');
             }
 
-            // Specific Actions
+            // Specific Actions: Load TradingView when required
             if (sectionId === 'chart') {
-                loadTradingView();
+                loadTradingView('tradingview_container_chart');
+            } else if (sectionId === 'dashboard' && window.isLoggedIn) {
+                 loadTradingView('tradingview_container_dashboard');
             }
         }
 
@@ -416,11 +515,36 @@
             menu.classList.toggle('flex');
         }
 
-        // 2. TradingView Integration (Real Data)
-        let tvWidget = null;
-        function loadTradingView() {
-            const container = document.getElementById('tradingview_container');
-            if (container && container.innerHTML === "") {
+        // 2. Login Logic
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const submitBtn = document.getElementById('login-submit');
+
+            // Hardcoded Credentials Check
+            if (email === 'test@gmail.com' && password === '12345@test') {
+                // Success animation
+                submitBtn.classList.add('success');
+                
+                // Set state and navigate after animation
+                setTimeout(() => {
+                    window.isLoggedIn = true;
+                    updateDynamicNav();
+                    navigateTo('dashboard');
+                    submitBtn.classList.remove('success');
+                    alert('ورود با موفقیت انجام شد. به داشبورد پلن خوش آمدید.');
+                }, 500);
+            } else {
+                // Failure
+                alert('ایمیل یا رمز عبور اشتباه است.');
+            }
+        }
+        
+        // 3. TradingView Integration (Real Data)
+        function loadTradingView(containerId) {
+            const container = document.getElementById(containerId);
+            if (container && container.innerHTML.trim() === "") {
                 new TradingView.widget({
                     "width": "100%",
                     "height": "100%",
@@ -434,26 +558,30 @@
                     "enable_publishing": false,
                     "hide_side_toolbar": false,
                     "allow_symbol_change": true,
-                    "container_id": "tradingview_container"
+                    "container_id": containerId
                 });
             }
         }
 
-        // 3. Creative Background (Particle Network)
+
+        // 4. Creative Background (Particle Network)
         const canvas = document.getElementById('canvas-container');
         const ctx = canvas.getContext('2d');
         let particlesArray;
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        initCanvas();
 
         class Particle {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
                 this.size = Math.random() * 2;
-                this.speedX = (Math.random() * 1) - 0.5;
-                this.speedY = (Math.random() * 1) - 0.5;
+                this.speedX = (Math.random() * 0.5) - 0.25;
+                this.speedY = (Math.random() * 0.5) - 0.25;
             }
             update() {
                 this.x += this.speedX;
@@ -471,7 +599,7 @@
 
         function initParticles() {
             particlesArray = [];
-            let numberOfParticles = (canvas.width * canvas.height) / 15000;
+            let numberOfParticles = (canvas.width * canvas.height) / 20000;
             for (let i = 0; i < numberOfParticles; i++) {
                 let x = Math.random() * canvas.width;
                 let y = Math.random() * canvas.height;
@@ -485,7 +613,6 @@
                 particlesArray[i].update();
                 particlesArray[i].draw();
                 
-                // Draw connections
                 for (let j = i; j < particlesArray.length; j++) {
                     const dx = particlesArray[i].x - particlesArray[j].x;
                     const dy = particlesArray[i].y - particlesArray[j].y;
@@ -504,15 +631,14 @@
         }
 
         window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            initCanvas();
             initParticles();
         });
 
         initParticles();
         animateParticles();
 
-        // 4. Text Scramble Effect
+        // 5. Text Scramble & Counter
         class ScrambleText {
             constructor(el) {
                 this.el = el;
@@ -565,19 +691,18 @@
         }
 
         const phrases = ['PARS TRADE', 'BIG GOALS', 'COMMUNITY', 'FUTURE'];
-        const el = document.getElementById('scramble-text');
-        const fx = new ScrambleText(el);
-        let counter = 0;
+        const elScramble = document.getElementById('scramble-text');
+        const fx = new ScrambleText(elScramble);
+        let counterScramble = 0;
         
         const next = () => {
-            fx.setText(phrases[counter]).then(() => {
+            fx.setText(phrases[counterScramble]).then(() => {
                 setTimeout(next, 3000);
             });
-            counter = (counter + 1) % phrases.length;
+            counterScramble = (counterScramble + 1) % phrases.length;
         };
         setTimeout(next, 1000);
 
-        // 5. Number Counter
         function animateValue(obj, start, end, duration) {
             let startTimestamp = null;
             const step = (timestamp) => {
@@ -592,6 +717,8 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
+           updateDynamicNav();
+           navigateTo('home');
            setTimeout(() => {
                 animateValue(document.getElementById("counter"), 0, 9.5, 2000);
            }, 500);
@@ -605,6 +732,8 @@
     </script>
 </body>
 </html>
+```eof
+
 
 
 
