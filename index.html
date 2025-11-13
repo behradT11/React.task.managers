@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pars Trade | داشبورد پلن</title>
+    <title>Pars Trade | ورود اعضا</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;700;900&display=swap" rel="stylesheet">
@@ -11,9 +11,7 @@
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
     <script>
-        // Global state to track login status
-        window.isLoggedIn = false;
-        
+        // Config and Styles remain the same for consistency
         tailwind.config = {
             theme: {
                 extend: {
@@ -29,15 +27,10 @@
                         }
                     },
                     animation: {
-                        'float': 'float 6s ease-in-out infinite',
                         'pulse-glow': 'pulseGlow 2s infinite',
                         'success-ring': 'successRing 1s ease-out forwards'
                     },
                     keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' },
-                        },
                         pulseGlow: {
                             '0%, 100%': { boxShadow: '0 0 5px #00ff88' },
                             '50%': { boxShadow: '0 0 20px #00ff88', borderColor: '#00ff88' },
@@ -105,36 +98,6 @@
             to { opacity: 1; transform: translateY(0); filter: blur(0); }
         }
 
-        /* Timeline CSS */
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            right: -9px;
-            top: 0;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #1a1a1a;
-            border: 2px solid #00ff88;
-            z-index: 10;
-        }
-
-        /* Custom Progress Bar for Metrics */
-        .progress-bar {
-            height: 8px;
-            background-color: #222;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background-color: #00ff88;
-            transition: width 1s ease-out;
-        }
-        .progress-fill.red {
-             background-color: #ef4444;
-        }
-
         /* Login Button Animation */
         .login-submit-btn {
             position: relative;
@@ -176,7 +139,7 @@
                 <button onclick="navigateTo('live')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all relative">لایو ترید</button>
                 <button onclick="navigateTo('academy')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">آموزش</button>
                 <button onclick="navigateTo('chat')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">گپ</button>
-                <button id="nav-dynamic" onclick="handleDynamicNav()" class="px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all"></button>
+                <button onclick="window.location.href='dashboard.html'" class="px-6 py-7 text-sm font-bold text-brand-green border-b-2 border-brand-green transition-all">داشبورد &rarr;</button>
             </div>
 
             <button class="md:hidden text-white text-2xl" onclick="toggleMobileMenu()">
@@ -190,7 +153,7 @@
         <button onclick="navigateTo('home'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">خانه</button>
         <button onclick="navigateTo('chart'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">چارت</button>
         <button onclick="navigateTo('live'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">لایو</button>
-        <button onclick="handleDynamicNav(); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green" id="mobile-nav-dynamic">ورود اعضا</button>
+        <button onclick="window.location.href='dashboard.html'; toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">داشبورد &rarr;</button>
     </div>
 
     <main class="pt-20 min-h-screen relative z-10">
@@ -269,89 +232,6 @@
             </div>
         </section>
 
-        <section id="dashboard" class="page-section min-h-[calc(100vh-5rem)] px-4 py-8">
-            <div class="max-w-7xl mx-auto">
-                <h2 class="text-3xl font-black mb-8 border-r-4 border-brand-green pr-4">داشبورد پلن ترید</h2>
-                
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-                    <div class="glass p-5 rounded-xl border-green-500/20 border-l-4">
-                        <div class="text-sm text-gray-400 mb-2">سود کل (PL)</div>
-                        <div class="text-3xl font-black text-brand-green">+ $1,580.45</div>
-                        <div class="text-sm text-gray-500 mt-1">+5.2%</div>
-                    </div>
-                    <div class="glass p-5 rounded-xl border-red-500/20 border-l-4">
-                        <div class="text-sm text-gray-400 mb-2">حد ضرر روزانه</div>
-                        <div class="text-3xl font-black text-red-500">$ -250.00</div>
-                        <div class="text-sm text-gray-500 mt-1">۲٪ از ۵٪ مجاز</div>
-                    </div>
-                    <div class="glass p-5 rounded-xl border-red-500/20 border-l-4">
-                        <div class="text-sm text-gray-400 mb-2">درودان کل</div>
-                        <div class="text-3xl font-black text-red-500">$ -420.00</div>
-                        <div class="text-sm text-gray-500 mt-1">۱.۴٪ از ۱۰٪ مجاز</div>
-                    </div>
-                    <div class="glass p-5 rounded-xl border-brand-gold/20 border-l-4">
-                        <div class="text-sm text-gray-400 mb-2">هدف پلن (PL)</div>
-                        <div class="text-3xl font-black text-brand-gold">$ 3,000.00</div>
-                        <div class="text-sm text-gray-500 mt-1">۱۰٪ هدف</div>
-                    </div>
-                </div>
-
-                <div class="glass p-6 rounded-xl mb-10">
-                    <div class="mb-4">
-                        <div class="flex justify-between text-sm text-gray-400 mb-1">
-                            <span>پیشرفت به هدف نهایی (۱۰٪)</span>
-                            <span class="font-bold text-brand-green">۵.۲٪</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 52%;"></div>
-                        </div>
-                    </div>
-                    <div class="mb-0">
-                        <div class="flex justify-between text-sm text-gray-400 mb-1">
-                            <span>میزان استفاده از حد ضرر (Daily Loss)</span>
-                            <span class="font-bold text-red-500">۴۰٪</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill red" style="width: 40%;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid md:grid-cols-3 gap-6 h-[70vh]">
-                    <div class="md:col-span-2 glass p-2 rounded-xl h-full flex flex-col">
-                         <h3 class="text-xl font-bold mb-3 text-center text-gray-300">چارت اختصاصی XAUUSD</h3>
-                         <div id="tradingview_container_dashboard" class="flex-grow w-full"></div>
-                    </div>
-                    <div class="glass p-6 rounded-xl overflow-y-auto h-full">
-                        <h3 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">معاملات اخیر</h3>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center text-sm border-b border-white/5 pb-2">
-                                <span class="text-brand-green font-bold">CLOSE | EURUSD</span>
-                                <span class="text-brand-green">+ $120.00</span>
-                                <span class="text-gray-500 text-xs">2 hours ago</span>
-                            </div>
-                             <div class="flex justify-between items-center text-sm border-b border-white/5 pb-2">
-                                <span class="text-red-500 font-bold">CLOSE | XAUUSD</span>
-                                <span class="text-red-500">- $70.00</span>
-                                <span class="text-gray-500 text-xs">5 hours ago</span>
-                            </div>
-                             <div class="flex justify-between items-center text-sm border-b border-white/5 pb-2">
-                                <span class="text-brand-green font-bold">CLOSE | GBPJPY</span>
-                                <span class="text-brand-green">+ $210.45</span>
-                                <span class="text-gray-500 text-xs">Yesterday</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm border-b border-white/5 pb-2">
-                                <span class="text-brand-green font-bold">CLOSE | BTCUSD</span>
-                                <span class="text-brand-green">+ $320.00</span>
-                                <span class="text-gray-500 text-xs">2 days ago</span>
-                            </div>
-                            <div class="text-center text-gray-600 pt-4">پایان لیست</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section id="login" class="page-section">
             <div class="min-h-[80vh] flex items-center justify-center px-4">
                 <div class="glass p-10 rounded-2xl w-full max-w-md relative overflow-hidden">
@@ -379,7 +259,7 @@
         </section>
 
         <section id="live" class="page-section">
-            <div class="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
+             <div class="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
                 <div class="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mb-6 animate-pulse">
                     <i class="fa-solid fa-video text-red-500 text-4xl"></i>
                 </div>
@@ -422,7 +302,7 @@
             </div>
         </section>
         <section id="chat" class="page-section">
-            <div class="min-h-[80vh] flex items-center justify-center px-4 text-center">
+             <div class="min-h-[80vh] flex items-center justify-center px-4 text-center">
                  <div>
                      <i class="fa-solid fa-lock text-4xl text-gray-600 mb-4"></i>
                      <h2 class="text-2xl font-bold">بخش گپ اختصاصی</h2>
@@ -435,39 +315,8 @@
     </main>
 
     <script>
-        // 1. Navigation System (Robust)
-        function updateDynamicNav() {
-            const dynamicNav = document.getElementById('nav-dynamic');
-            const mobileDynamicNav = document.getElementById('mobile-nav-dynamic');
-            
-            if (window.isLoggedIn) {
-                dynamicNav.textContent = 'داشبورد';
-                dynamicNav.onclick = () => navigateTo('dashboard');
-                mobileDynamicNav.textContent = 'داشبورد';
-                mobileDynamicNav.onclick = () => { navigateTo('dashboard'); toggleMobileMenu(); };
-            } else {
-                dynamicNav.textContent = 'ورود اعضا';
-                dynamicNav.onclick = () => navigateTo('login');
-                mobileDynamicNav.textContent = 'ورود اعضا';
-                mobileDynamicNav.onclick = () => { navigateTo('login'); toggleMobileMenu(); };
-            }
-        }
-
-        function handleDynamicNav() {
-            if (window.isLoggedIn) {
-                navigateTo('dashboard');
-            } else {
-                navigateTo('login');
-            }
-        }
-
+        // 1. Navigation System (Standard)
         function navigateTo(sectionId) {
-            // Check for secured access
-            if (sectionId === 'dashboard' && !window.isLoggedIn) {
-                 alert("برای دسترسی به داشبورد باید وارد حساب کاربری شوید.");
-                 return navigateTo('login');
-            }
-
             // Update Buttons
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -475,21 +324,11 @@
                 btn.classList.add('text-gray-400');
             });
             
-            // Highlight active nav buttons
-            const allNavButtons = document.querySelectorAll(`button[onclick*="navigateTo('${sectionId}')"]`);
-            allNavButtons.forEach(btn => {
-                 if (btn.classList.contains('nav-btn')) {
-                    btn.classList.add('active', 'text-white');
-                    btn.classList.remove('text-gray-400');
-                }
-            });
-            
-            // Handle dynamic nav button highlighting separately
-             if ((sectionId === 'login' || sectionId === 'dashboard') && document.getElementById('nav-dynamic')) {
-                 document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-                 document.getElementById('nav-dynamic').classList.add('active', 'text-white');
-                 document.getElementById('nav-dynamic').classList.remove('text-gray-400');
-             }
+            const targetButton = document.querySelector(`button[onclick*="navigateTo('${sectionId}')"].nav-btn`);
+            if (targetButton) {
+                targetButton.classList.add('active', 'text-white');
+                targetButton.classList.remove('text-gray-400');
+            }
 
             // Switch Sections
             document.querySelectorAll('.page-section').forEach(sec => {
@@ -504,8 +343,6 @@
             // Specific Actions: Load TradingView when required
             if (sectionId === 'chart') {
                 loadTradingView('tradingview_container_chart');
-            } else if (sectionId === 'dashboard' && window.isLoggedIn) {
-                 loadTradingView('tradingview_container_dashboard');
             }
         }
 
@@ -515,10 +352,9 @@
             menu.classList.toggle('flex');
         }
 
-        // 2. Login Logic - FIX APPLIED HERE
+        // 2. Login Logic - Redirects to dashboard.html on success
         function handleLogin(event) {
             event.preventDefault();
-            // FIX: Added .trim() to safely remove any leading/trailing whitespace
             const email = document.getElementById('login-email').value.trim(); 
             const password = document.getElementById('login-password').value.trim(); 
             const submitBtn = document.getElementById('login-submit');
@@ -528,13 +364,10 @@
                 // Success animation
                 submitBtn.classList.add('success');
                 
-                // Set state and navigate after animation
+                // Redirect to the new dashboard page after animation
                 setTimeout(() => {
-                    window.isLoggedIn = true;
-                    updateDynamicNav();
-                    navigateTo('dashboard');
-                    submitBtn.classList.remove('success');
-                    alert('ورود با موفقیت انجام شد. به داشبورد پلن خوش آمدید.');
+                    alert('ورود با موفقیت انجام شد. به داشبورد پلن هدایت می‌شوید.');
+                    window.location.href = 'dashboard.html'; // <<< The key change
                 }, 500);
             } else {
                 // Failure
@@ -549,7 +382,7 @@
                 new TradingView.widget({
                     "width": "100%",
                     "height": "100%",
-                    "symbol": "OANDA:XAUUSD", // Real Gold Data
+                    "symbol": "OANDA:XAUUSD", 
                     "interval": "60",
                     "timezone": "Asia/Tehran",
                     "theme": "dark",
@@ -718,7 +551,6 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-           updateDynamicNav();
            navigateTo('home');
            setTimeout(() => {
                 animateValue(document.getElementById("counter"), 0, 9.5, 2000);
@@ -733,7 +565,7 @@
     </script>
 </body>
 </html>
-ورژن ۴
+ورژن ۵
 
 
 
