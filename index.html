@@ -515,11 +515,12 @@
             menu.classList.toggle('flex');
         }
 
-        // 2. Login Logic
+        // 2. Login Logic - FIX APPLIED HERE
         function handleLogin(event) {
             event.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            // FIX: Added .trim() to safely remove any leading/trailing whitespace
+            const email = document.getElementById('login-email').value.trim(); 
+            const password = document.getElementById('login-password').value.trim(); 
             const submitBtn = document.getElementById('login-submit');
 
             // Hardcoded Credentials Check
@@ -732,7 +733,7 @@
     </script>
 </body>
 </html>
-```eof
+ورژن ۴
 
 
 
