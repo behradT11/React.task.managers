@@ -3,19 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pars Trade | مرکز تخصصی ترید</title>
-    
-    <!-- Tailwind CSS -->
+    <title>Pars Trade | آینده ترید اینجاست</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;700;900&display=swap" rel="stylesheet">
     
-    <!-- SciChart Library (Load from CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/scichart@3.2.303/_wasm/scichart.browser.js"></script>
+    <!-- TradingView Widget Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
     <script>
         tailwind.config = {
@@ -25,13 +19,26 @@
                         sans: ['Vazirmatn', 'sans-serif'],
                     },
                     colors: {
-                        tradeGreen: '#00ff88',
-                        tradeDark: '#000000',
-                        tradeGray: '#111111',
-                        tradeGold: '#d4af37',
+                        brand: {
+                            green: '#00ff88',
+                            dark: '#050505',
+                            gray: '#121212',
+                            gold: '#D4AF37'
+                        }
                     },
                     animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 5px #00ff88' },
+                            '50%': { boxShadow: '0 0 20px #00ff88', borderColor: '#00ff88' },
+                        }
                     }
                 }
             }
@@ -40,479 +47,476 @@
 
     <style>
         body {
-            background-color: #000000;
-            color: #ffffff;
+            background-color: #050505;
+            color: white;
             overflow-x: hidden;
         }
-
-        /* Minimalist Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #000; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #333; 
-            border-radius: 0;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555; 
-        }
-
-        /* Subtle Grid */
-        .bg-grid {
-            background-size: 40px 40px;
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-        }
-
-        /* Utility Classes */
-        .glass-card {
-            background: rgba(10, 10, 10, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
         
-        .nav-item.active {
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00ff88; }
+
+        /* Navigation Active State */
+        .nav-btn.active {
             color: #00ff88;
-            position: relative;
+            background: rgba(0, 255, 136, 0.1);
+            border-bottom: 2px solid #00ff88;
         }
-        .nav-item.active::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
+
+        /* Particle Canvas */
+        #canvas-container {
+            position: fixed;
+            top: 0;
             left: 0;
             width: 100%;
-            height: 2px;
-            background-color: #00ff88;
-            box-shadow: 0 0 10px #00ff88;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        /* Section Control */
-        .section-content {
-            display: none;
-            animation: fadeIn 0.5s ease;
+        /* Glassmorphism */
+        .glass {
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .section-content.active-section {
+        
+        /* Section Transition */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .page-section.active-section {
             display: block;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        /* Timeline CSS */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: -9px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            border: 2px solid #00ff88;
+            z-index: 10;
         }
     </style>
 </head>
-<body class="font-sans antialiased selection:bg-white selection:text-black">
+<body class="font-sans antialiased">
 
-    <!-- Background Grid Only (No Colors) -->
-    <div class="fixed inset-0 bg-grid pointer-events-none z-0"></div>
+    <!-- Background Canvas for Particles -->
+    <canvas id="canvas-container"></canvas>
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-50 top-0 left-0 border-b border-white/10 bg-black/90 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                
-                <!-- Logo -->
-                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
-                    <i class="fa-solid fa-layer-group text-white text-2xl"></i>
-                    <div class="flex flex-col">
-                        <span class="text-xl font-black tracking-tighter leading-none">PARS</span>
-                        <span class="text-xs font-light tracking-[0.3em] text-gray-400">TRADE</span>
-                    </div>
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 top-0 bg-black/90 backdrop-blur-lg border-b border-white/10 h-20">
+        <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+                <div class="w-10 h-10 bg-gradient-to-br from-brand-green to-black rounded-lg flex items-center justify-center text-black font-bold text-xl">P</div>
+                <div>
+                    <h1 class="font-black text-xl tracking-tighter leading-none">PARS <span class="text-brand-green">TRADE</span></h1>
+                    <span class="text-[10px] text-gray-500 tracking-[0.3em]">COMMUNITY</span>
                 </div>
+            </div>
 
-                <!-- Desktop Menu -->
-                <div class="hidden md:block">
-                    <div class="flex items-center space-x-6 space-x-reverse">
-                        <button onclick="switchTab('home')" id="nav-home" class="nav-item active text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">خانه</button>
-                        <button onclick="switchTab('chart')" id="nav-chart" class="nav-item text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">چارت</button>
-                        <button onclick="switchTab('live')" id="nav-live" class="nav-item text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">لایو</button>
-                        <button onclick="switchTab('education')" id="nav-education" class="nav-item text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">آموزش</button>
-                        <button onclick="switchTab('chat')" id="nav-chat" class="nav-item text-gray-300 hover:text-white text-sm font-bold transition-colors px-2">گپ / چت</button>
-                    </div>
-                </div>
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center gap-1">
+                <button onclick="navigateTo('home')" class="nav-btn active px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">خانه</button>
+                <button onclick="navigateTo('chart')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">چارت طلا</button>
+                <button onclick="navigateTo('live')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all relative">
+                    لایو ترید
+                    <span class="absolute top-5 left-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                </button>
+                <button onclick="navigateTo('academy')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">آموزش</button>
+                <button onclick="navigateTo('chat')" class="nav-btn px-6 py-7 text-sm font-bold text-gray-400 hover:text-white transition-all">گپ</button>
+            </div>
 
-                <!-- Login Button -->
-                <div class="hidden md:block">
-                    <button onclick="switchTab('login')" class="border border-white/20 hover:bg-white hover:text-black text-white px-6 py-2 rounded-full text-sm font-bold transition-all duration-300">
-                        لاگ‌این
-                    </button>
-                </div>
-
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden">
-                    <button class="text-white hover:text-gray-300">
-                        <i class="fa-solid fa-bars text-2xl"></i>
-                    </button>
-                </div>
+            <!-- Action Button -->
+            <div class="flex items-center gap-4">
+                <button onclick="navigateTo('login')" class="hidden md:block px-6 py-2 rounded-full border border-white/20 hover:bg-white hover:text-black transition-all font-bold text-sm">
+                    ورود اعضا
+                </button>
+                <!-- Mobile Menu Icon -->
+                <button class="md:hidden text-white text-2xl" onclick="toggleMobileMenu()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content Container -->
-    <main class="relative z-10 pt-24 min-h-screen flex flex-col">
-        
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-40 hidden flex-col items-center justify-center gap-8 md:hidden">
+        <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 text-white text-3xl"><i class="fa-solid fa-times"></i></button>
+        <button onclick="navigateTo('home'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">خانه</button>
+        <button onclick="navigateTo('chart'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">چارت</button>
+        <button onclick="navigateTo('live'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">لایو</button>
+        <button onclick="navigateTo('login'); toggleMobileMenu()" class="text-2xl font-bold hover:text-brand-green">ورود</button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="pt-20 min-h-screen relative z-10">
+
         <!-- HOME SECTION -->
-        <div id="home-section" class="section-content active-section flex-grow">
-            <section class="flex flex-col justify-center items-center text-center px-4 py-20">
+        <section id="home" class="page-section active-section">
+            <!-- Hero -->
+            <div class="min-h-[80vh] flex flex-col justify-center items-center text-center px-4 relative overflow-hidden">
                 
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-none border border-white/20 mb-8 bg-white/5">
-                    <span class="w-1.5 h-1.5 bg-white animate-pulse"></span>
-                    <span class="text-xs font-mono text-gray-300 tracking-widest uppercase">MARKET IS OPEN</span>
+                <!-- Floating Elements -->
+                <div class="absolute top-20 left-10 text-gray-800 text-9xl font-black opacity-10 select-none animate-float">BUY</div>
+                <div class="absolute bottom-20 right-10 text-gray-800 text-9xl font-black opacity-10 select-none animate-float" style="animation-delay: 2s">SELL</div>
+
+                <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-brand-green/30 bg-brand-green/5 mb-8 backdrop-blur-sm animate-pulse-glow">
+                    <span class="w-2 h-2 bg-brand-green rounded-full shadow-[0_0_10px_#00ff88]"></span>
+                    <span class="text-xs font-mono text-brand-green tracking-widest">SYSTEM ONLINE</span>
                 </div>
 
-                <h1 class="text-5xl md:text-8xl font-black mb-8 leading-none tracking-tight">
-                    <span class="block text-gray-600 text-2xl md:text-4xl font-light mb-4">فصل جدیدی از</span>
-                    <span id="mystery-text" class="text-white">_____</span>
+                <h1 class="text-5xl md:text-8xl font-black mb-6 leading-tight z-10">
+                    <span class="block text-2xl md:text-4xl font-light text-gray-400 mb-2">به دنیای</span>
+                    <span id="scramble-text" class="bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">PARS TRADE</span>
+                    <span class="text-brand-green">.</span>
                 </h1>
 
-                <p class="mt-2 max-w-2xl text-lg text-gray-400 leading-relaxed">
-                    قدرت گرفته توسط تکنولوژی. تحلیل‌های دقیق. کامیونیتی <span class="text-white font-bold">پارس ترید</span>.
+                <p class="max-w-2xl text-lg md:text-xl text-gray-400 mb-10 leading-relaxed z-10">
+                    ما معتقدیم ترید یک شغل نیست، یک <span class="text-white font-bold border-b border-brand-green">سبک زندگی</span> است.
+                    به بزرگترین کامیونیتی ترید فارسی بپیوندید.
                 </p>
 
-                <div class="mt-12 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                    <button onclick="switchTab('chart')" class="group px-8 py-4 bg-white text-black font-bold text-lg hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
-                        مشاهده چارت
-                        <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+                <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto z-10">
+                    <button onclick="navigateTo('chart')" class="px-10 py-4 bg-white text-black font-black text-lg rounded-xl hover:bg-brand-green hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                        تحلیل طلا <i class="fa-solid fa-chart-line mr-2"></i>
                     </button>
-                    <a href="https://t.me/TradeCenterPro" target="_blank" class="px-8 py-4 border border-white/20 text-white font-bold text-lg hover:bg-white/10 transition-all">
-                        عضویت در کانال
+                    <a href="https://t.me/TradeCenterPro" target="_blank" class="px-10 py-4 bg-transparent border border-white/20 text-white font-bold text-lg rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+                        عضویت کانال <i class="fa-brands fa-telegram"></i>
                     </a>
                 </div>
 
-                <!-- Stats -->
-                <div class="mt-24 grid grid-cols-2 gap-12 md:gap-24 border-t border-white/10 pt-12">
-                    <div class="text-center">
-                        <div class="text-5xl font-black text-white mb-2 tracking-tighter flex items-center justify-center">
-                            <span id="counter-members">0</span>k
-                        </div>
-                        <div class="text-xs text-gray-500 uppercase tracking-widest">تریدر فعال</div>
+                <!-- Stats Counter -->
+                <div class="mt-20 grid grid-cols-3 gap-8 md:gap-20 border-t border-white/10 pt-10">
+                    <div>
+                        <div class="text-4xl font-black text-white"><span id="counter">0</span>k</div>
+                        <div class="text-xs text-gray-500 mt-1">اعضای فعال</div>
                     </div>
-                    <div class="text-center">
-                        <div class="text-5xl font-black text-white mb-2 tracking-tighter">
-                            24<span class="text-gray-600">/</span>7
-                        </div>
-                        <div class="text-xs text-gray-500 uppercase tracking-widest">پشتیبانی بازار</div>
+                    <div>
+                        <div class="text-4xl font-black text-white">∞</div>
+                        <div class="text-xs text-gray-500 mt-1">پتانسیل سود</div>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-black text-brand-green">PRO</div>
+                        <div class="text-xs text-gray-500 mt-1">سطح کیفی</div>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Message Section -->
-            <section class="py-20 bg-neutral-900/30 border-t border-white/5">
-                <div class="max-w-4xl mx-auto px-4 text-center">
-                    <h2 class="text-3xl font-bold mb-8">ارتباط مستقیم با مدیریت</h2>
-                    <div class="glass-card p-8 max-w-xl mx-auto">
-                        <form onsubmit="handleSubmit(event)" class="space-y-4 text-right">
-                            <input type="text" placeholder="نام مستعار" class="w-full bg-black border border-white/10 p-3 text-white focus:border-white outline-none transition-colors">
-                            <textarea rows="3" placeholder="پیشنهاد یا انتقاد شما..." class="w-full bg-black border border-white/10 p-3 text-white focus:border-white outline-none transition-colors"></textarea>
-                            <button class="w-full bg-white/10 hover:bg-white hover:text-black text-white py-3 font-bold transition-all">
+            <!-- Features / Roadmap -->
+            <div class="max-w-6xl mx-auto px-4 py-20">
+                <div class="grid md:grid-cols-2 gap-16">
+                    <!-- Roadmap -->
+                    <div>
+                        <h3 class="text-2xl font-bold mb-8 flex items-center gap-2">
+                            <i class="fa-solid fa-map-location-dot text-brand-green"></i> نقشه راه (Roadmap)
+                        </h3>
+                        <div class="border-r-2 border-gray-800 mr-3 relative space-y-12 pr-8">
+                            <div class="timeline-item relative">
+                                <div class="text-brand-green font-bold text-sm mb-1">فاز اول - تکمیل شد</div>
+                                <h4 class="text-xl font-bold text-white">تاسیس کامیونیتی</h4>
+                                <p class="text-gray-500 text-sm mt-2">رسیدن به ۹.۵ هزار عضو فعال و ایجاد کانال‌های سیگنال.</p>
+                            </div>
+                            <div class="timeline-item relative">
+                                <div class="text-yellow-500 font-bold text-sm mb-1">فاز دوم - در حال اجرا</div>
+                                <h4 class="text-xl font-bold text-white">پلتفرم آموزشی & لایو ترید</h4>
+                                <p class="text-gray-500 text-sm mt-2">راه‌اندازی وبسایت، برگزاری لایوهای هفتگی و تحلیل‌های آنچین.</p>
+                            </div>
+                            <div class="timeline-item relative opacity-50">
+                                <div class="text-gray-500 font-bold text-sm mb-1">فاز سوم - آینده</div>
+                                <h4 class="text-xl font-bold text-white">صندوق سرمایه‌گذاری پارس</h4>
+                                <p class="text-gray-500 text-sm mt-2">ایجاد توکن اختصاصی و صندوق مدیریت سرمایه برای اعضای VIP.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Box -->
+                    <div class="glass p-8 rounded-2xl h-fit">
+                        <h3 class="text-2xl font-bold mb-6">ارتباط با مدیریت <span class="text-brand-green">@Parsfarsi</span></h3>
+                        <p class="text-gray-400 mb-6 text-sm">ایده‌های بزرگ از گفتگوهای کوچک شروع می‌شوند. پیام خود را مستقیماً ارسال کنید.</p>
+                        <form onsubmit="submitForm(event)" class="space-y-4">
+                            <input type="text" required placeholder="نام شما" class="w-full bg-black/50 border border-white/10 p-4 rounded-lg text-white focus:border-brand-green outline-none transition-colors">
+                            <textarea required rows="4" placeholder="متن پیام..." class="w-full bg-black/50 border border-white/10 p-4 rounded-lg text-white focus:border-brand-green outline-none transition-colors"></textarea>
+                            <button type="submit" class="w-full bg-brand-green text-black font-bold py-4 rounded-lg hover:bg-white transition-colors">
                                 ارسال پیام
                             </button>
                         </form>
                     </div>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
 
-        <!-- CHART SECTION (SciChart) -->
-        <div id="chart-section" class="section-content w-full h-[calc(100vh-6rem)] px-4 pb-4">
-            <div class="w-full h-full border border-white/10 bg-[#0c0c0c] relative">
-                <!-- Chart Header -->
-                <div class="absolute top-0 left-0 w-full z-20 flex justify-between items-center p-4 border-b border-white/5 bg-black/50 backdrop-blur-sm">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-yellow-500/20 rounded flex items-center justify-center text-yellow-500">
-                            <i class="fa-solid fa-coins"></i>
+        <!-- CHART SECTION (TradingView Realtime) -->
+        <section id="chart" class="page-section h-[calc(100vh-5rem)] w-full">
+            <div class="w-full h-full flex flex-col">
+                <!-- Chart Controls -->
+                <div class="h-12 bg-gray-900 border-b border-white/5 flex items-center px-4 justify-between">
+                    <div class="flex items-center gap-2 text-sm font-bold">
+                        <span class="text-brand-gold text-yellow-500">XAUUSD</span>
+                        <span class="text-gray-500">|</span>
+                        <span class="text-white">GOLD SPOT</span>
+                    </div>
+                    <div class="text-xs text-gray-500 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        Realtime Data Connected
+                    </div>
+                </div>
+                <!-- TradingView Widget Container -->
+                <div id="tradingview_container" class="flex-grow w-full h-full"></div>
+            </div>
+        </section>
+
+        <!-- LIVE SECTION -->
+        <section id="live" class="page-section">
+            <div class="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
+                <div class="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mb-6 animate-pulse">
+                    <i class="fa-solid fa-video text-red-500 text-4xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold mb-4">بخش لایو استریم</h2>
+                <p class="text-gray-400 max-w-md mb-8">در حال حاضر استریمی وجود ندارد. برای اطلاع از زمان لایو تریدها عضو کانال تلگرام شوید.</p>
+                <a href="https://t.me/TradeCenterPro" class="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold transition-colors">
+                    عضویت در تلگرام
+                </a>
+            </div>
+        </section>
+
+        <!-- ACADEMY SECTION -->
+        <section id="academy" class="page-section">
+            <div class="max-w-6xl mx-auto px-4 py-20">
+                <h2 class="text-3xl font-bold mb-10 border-r-4 border-brand-green pr-4">آخرین آموزش‌ها</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Mock Course Cards -->
+                    <div class="glass rounded-xl overflow-hidden group cursor-pointer">
+                        <div class="h-48 bg-gray-800 relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80"></div>
+                            <i class="fa-solid fa-chart-pie absolute bottom-4 right-4 text-4xl text-white/20 group-hover:text-brand-green transition-colors"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">روانشناسی بازار</h3>
+                            <p class="text-gray-500 text-sm mb-4">چگونه احساسات خود را هنگام ضرر کنترل کنیم؟</p>
+                            <span class="text-brand-green text-sm font-bold">مطالعه مقاله &rarr;</span>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl overflow-hidden group cursor-pointer">
+                        <div class="h-48 bg-gray-800 relative overflow-hidden">
+                             <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80"></div>
+                             <i class="fa-solid fa-wave-square absolute bottom-4 right-4 text-4xl text-white/20 group-hover:text-brand-green transition-colors"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">پرایس اکشن پیشرفته</h3>
+                            <p class="text-gray-500 text-sm mb-4">شناسایی نواحی عرضه و تقاضای نهان.</p>
+                            <span class="text-brand-green text-sm font-bold">مشاهده ویدیو &rarr;</span>
+                        </div>
+                    </div>
+                     <div class="glass rounded-xl overflow-hidden group cursor-pointer">
+                        <div class="h-48 bg-gray-800 relative overflow-hidden">
+                             <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80"></div>
+                             <i class="fa-brands fa-bitcoin absolute bottom-4 right-4 text-4xl text-white/20 group-hover:text-brand-green transition-colors"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">کریپتو یا فارکس؟</h3>
+                            <p class="text-gray-500 text-sm mb-4">کدام بازار برای شروع سرمایه کم مناسب‌تر است؟</p>
+                            <span class="text-brand-green text-sm font-bold">مطالعه مقاله &rarr;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOGIN/CHAT SECTION -->
+        <section id="login" class="page-section">
+            <div class="min-h-[80vh] flex items-center justify-center px-4">
+                <div class="glass p-10 rounded-2xl w-full max-w-md relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-green to-transparent"></div>
+                    <h2 class="text-2xl font-bold text-center mb-8">ورود به حساب کاربری</h2>
+                    <form class="space-y-6">
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">نام کاربری</label>
+                            <input type="text" class="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-brand-green outline-none text-left dir-ltr">
                         </div>
                         <div>
-                            <div class="text-white font-bold text-sm">GOLD (XAU/USD)</div>
-                            <div class="text-xs text-gray-400 flex items-center gap-1">
-                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                Market Open
-                            </div>
+                            <label class="block text-gray-400 text-sm mb-2">رمز عبور</label>
+                            <input type="password" class="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-brand-green outline-none text-left dir-ltr">
                         </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <span class="px-3 py-1 bg-white/5 text-xs text-gray-400 border border-white/5">1H</span>
-                        <span class="px-3 py-1 bg-white/5 text-xs text-gray-400 border border-white/5">Candles</span>
-                    </div>
-                </div>
-                
-                <!-- Chart Container -->
-                <div id="scichart-root" class="w-full h-full pt-16"></div>
-            </div>
-        </div>
-
-        <!-- LIVE SECTION (Placeholder) -->
-        <div id="live-section" class="section-content flex-grow">
-            <div class="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
-                <i class="fa-solid fa-satellite-dish text-6xl mb-4 opacity-50"></i>
-                <h2 class="text-2xl font-bold text-white mb-2">پخش زنده</h2>
-                <p>هیچ لایو استریمی در حال حاضر فعال نیست.</p>
-            </div>
-        </div>
-
-        <!-- EDUCATION SECTION (Placeholder) -->
-        <div id="education-section" class="section-content flex-grow">
-            <div class="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
-                <i class="fa-solid fa-graduation-cap text-6xl mb-4 opacity-50"></i>
-                <h2 class="text-2xl font-bold text-white mb-2">آکادمی پارس ترید</h2>
-                <p>دوره های آموزشی به زودی بارگذاری می‌شوند.</p>
-            </div>
-        </div>
-
-        <!-- CHAT SECTION (Placeholder) -->
-        <div id="chat-section" class="section-content flex-grow">
-            <div class="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
-                <i class="fa-regular fa-comments text-6xl mb-4 opacity-50"></i>
-                <h2 class="text-2xl font-bold text-white mb-2">گپ کامیونیتی</h2>
-                <p>برای دسترسی به چت باید وارد شوید.</p>
-            </div>
-        </div>
-
-        <!-- LOGIN SECTION (Placeholder) -->
-        <div id="login-section" class="section-content flex-grow">
-            <div class="flex flex-col items-center justify-center min-h-[60vh]">
-                <div class="glass-card p-8 w-full max-w-md">
-                    <h2 class="text-2xl font-bold text-white mb-6 text-center">ورود به حساب کاربری</h2>
-                    <div class="space-y-4">
-                        <input type="text" placeholder="نام کاربری" class="w-full bg-black border border-white/10 p-3 text-white text-right focus:border-tradeGreen outline-none">
-                        <input type="password" placeholder="رمز عبور" class="w-full bg-black border border-white/10 p-3 text-white text-right focus:border-tradeGreen outline-none">
-                        <button class="w-full bg-white text-black font-bold py-3 hover:bg-gray-200 transition-colors">ورود</button>
+                        <button type="button" class="w-full bg-white text-black font-bold py-3 rounded hover:bg-gray-200 transition-colors">ورود</button>
+                    </form>
+                    <div class="mt-6 text-center text-sm text-gray-500">
+                        حساب ندارید؟ <a href="#" class="text-brand-green hover:underline">ثبت نام</a>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
+         <section id="chat" class="page-section">
+             <!-- Same as Login for now per instructions -->
+            <div class="min-h-[80vh] flex items-center justify-center px-4 text-center">
+                 <div>
+                     <i class="fa-solid fa-lock text-4xl text-gray-600 mb-4"></i>
+                     <h2 class="text-2xl font-bold">بخش گپ اختصاصی</h2>
+                     <p class="text-gray-500 mt-2">برای دسترسی به چت روم باید وارد حساب کاربری خود شوید.</p>
+                     <button onclick="navigateTo('login')" class="mt-6 px-6 py-2 border border-brand-green text-brand-green rounded hover:bg-brand-green hover:text-black transition-all">ورود</button>
+                 </div>
+            </div>
+        </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-white/5 bg-black py-8 text-center">
-        <p class="text-gray-600 text-xs">
-            POWERED BY <a href="https://t.me/Behrise" class="text-white font-bold hover:underline">@BEHRISE</a>
-        </p>
-    </footer>
-
-    <!-- LOGIC -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- 1. Navigation Logic ---
-        function switchTab(tabName) {
-            // Reset all nav items
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'text-white'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.add('text-gray-300'));
+        // 1. Navigation System (Robust)
+        function navigateTo(sectionId) {
+            // Update Buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('text-white');
+                btn.classList.add('text-gray-400');
+            });
             
-            // Highlight active nav if exists
-            const navBtn = document.getElementById(`nav-${tabName}`);
-            if(navBtn) {
-                navBtn.classList.add('active', 'text-white');
-                navBtn.classList.remove('text-gray-300');
-            }
-
-            // Hide all sections
-            document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active-section'));
-            
-            // Show target section
-            const target = document.getElementById(`${tabName}-section`);
-            if(target) target.classList.add('active-section');
-
-            // Initialize Chart only if chart tab is selected and not already initialized
-            if(tabName === 'chart' && !window.chartInitialized) {
-                initSciChart();
-                window.chartInitialized = true;
-            }
-        }
-
-        // --- 2. SciChart Implementation (Converted from TS to JS) ---
-        
-        // Generate Realistic Gold Data (Mock)
-        function generateGoldData(count) {
-            const xValues = [];
-            const openValues = [];
-            const highValues = [];
-            const lowValues = [];
-            const closeValues = [];
-            const volumeValues = [];
-
-            let currentPrice = 2650.00; // Realistic Gold Price
-            let currentTime = new Date().getTime() - (count * 3600 * 1000); // Start 'count' hours ago
-
-            for (let i = 0; i < count; i++) {
-                const open = currentPrice;
-                // Random volatility
-                const volatility = (Math.random() - 0.5) * 10; 
-                const close = open + volatility;
-                
-                const high = Math.max(open, close) + Math.random() * 3;
-                const low = Math.min(open, close) - Math.random() * 3;
-                
-                const volume = Math.floor(Math.random() * 1000) + 500;
-
-                xValues.push(currentTime / 1000); // SciChart uses seconds for Unix
-                openValues.push(open);
-                highValues.push(high);
-                lowValues.push(low);
-                closeValues.push(close);
-                volumeValues.push(volume);
-
-                currentPrice = close;
-                currentTime += 3600 * 1000; // Add 1 hour
-            }
-
-            return { xValues, openValues, highValues, lowValues, closeValues, volumeValues };
-        }
-
-        async function initSciChart() {
-            // Configure to use WASM from CDN
-            SciChart.SciChartSurface.useWasmFromCDN();
-
-            // Imports from global SciChart namespace
-            const {
-                SciChartSurface,
-                NumericAxis,
-                DateTimeNumericAxis,
-                FastCandlestickRenderableSeries,
-                OhlcDataSeries,
-                XyDataSeries,
-                FastColumnRenderableSeries,
-                FastLineRenderableSeries,
-                XyMovingAverageFilter,
-                ZoomPanModifier,
-                ZoomExtentsModifier,
-                MouseWheelZoomModifier,
-                CursorModifier,
-                EAutoRange,
-                NumberRange,
-                ENumericFormat,
-                EFillPaletteMode,
-                parseColorToUIntArgb
-            } = SciChart;
-
-            // Create Surface
-            const { sciChartSurface, wasmContext } = await SciChartSurface.create("scichart-root", {
-                theme: { type: "Dark" } // Use built-in Dark theme
-            });
-
-            // X Axis (Time)
-            const xAxis = new DateTimeNumericAxis(wasmContext, {
-                autoRange: EAutoRange.Never,
-                axisTitle: "Time",
-                drawMajorGridLines: false
-            });
-            sciChartSurface.xAxes.add(xAxis);
-
-            // Y Axis (Price)
-            const yAxis = new NumericAxis(wasmContext, {
-                labelPrefix: "$",
-                labelPrecision: 2,
-                autoRange: EAutoRange.Always,
-                growBy: new NumberRange(0.1, 0.1),
-                drawMajorGridLines: true,
-                majorGridLineStyle: { color: "#333333", strokeThickness: 1, strokeDashArray: [2, 2] }
-            });
-            sciChartSurface.yAxes.add(yAxis);
-
-            // Hidden Y Axis for Volume
-            const yAxisVolume = new NumericAxis(wasmContext, {
-                id: "Y_AXIS_VOLUME",
-                isVisible: false,
-                growBy: new NumberRange(0, 4),
-                autoRange: EAutoRange.Always
-            });
-            sciChartSurface.yAxes.add(yAxisVolume);
-
-            // Get Data
-            const data = generateGoldData(300);
-            
-            // Setup Data Series
-            const candleDataSeries = new OhlcDataSeries(wasmContext, {
-                xValues: data.xValues,
-                openValues: data.openValues,
-                highValues: data.highValues,
-                lowValues: data.lowValues,
-                closeValues: data.closeValues,
-                dataSeriesName: "Gold (XAU/USD)"
-            });
-
-            // Render Candlesticks
-            const candlestickSeries = new FastCandlestickRenderableSeries(wasmContext, {
-                dataSeries: candleDataSeries,
-                strokeThickness: 1,
-                brushUp: "#00ff8877",       // Green with opacity
-                brushDown: "#ff333377",     // Red with opacity
-                strokeUp: "#00ff88",
-                strokeDown: "#ff3333",
-            });
-            sciChartSurface.renderableSeries.add(candlestickSeries);
-
-            // Moving Averages (EMA 20 & 50)
-            sciChartSurface.renderableSeries.add(
-                new FastLineRenderableSeries(wasmContext, {
-                    dataSeries: new XyMovingAverageFilter(candleDataSeries, { length: 20 }),
-                    stroke: "#00aaff",
-                    strokeThickness: 2
-                })
-            );
-            
-            sciChartSurface.renderableSeries.add(
-                new FastLineRenderableSeries(wasmContext, {
-                    dataSeries: new XyMovingAverageFilter(candleDataSeries, { length: 50 }),
-                    stroke: "#d4af37", // Gold color for MA 50
-                    strokeThickness: 2
-                })
-            );
-
-            // Volume Series with PaletteProvider logic implemented manually for simplicity in vanilla JS
-            // We create a custom palette provider object
-            const volumePaletteProvider = {
-                fillPaletteMode: EFillPaletteMode.SOLID,
-                onAttached: () => {},
-                onDetached: () => {},
-                overrideFillArgb: (x, y, index) => {
-                    const open = data.openValues[index];
-                    const close = data.closeValues[index];
-                    return open >= close ? parseColorToUIntArgb("#ff333377") : parseColorToUIntArgb("#00ff8877");
-                },
-                overrideStrokeArgb: (x, y, index) => {
-                    const open = data.openValues[index];
-                    const close = data.closeValues[index];
-                    return open >= close ? parseColorToUIntArgb("#ff3333") : parseColorToUIntArgb("#00ff88");
+            // Find button corresponding to section (approximation)
+            const activeBtns = document.querySelectorAll(`button[onclick="navigateTo('${sectionId}')"]`);
+            activeBtns.forEach(btn => {
+                if(btn.classList.contains('nav-btn')) {
+                    btn.classList.add('active', 'text-white');
+                    btn.classList.remove('text-gray-400');
                 }
-            };
+            });
 
-            sciChartSurface.renderableSeries.add(
-                new FastColumnRenderableSeries(wasmContext, {
-                    dataSeries: new XyDataSeries(wasmContext, { xValues: data.xValues, yValues: data.volumeValues }),
-                    yAxisId: "Y_AXIS_VOLUME",
-                    paletteProvider: volumePaletteProvider
-                })
-            );
+            // Switch Sections
+            document.querySelectorAll('.page-section').forEach(sec => {
+                sec.classList.remove('active-section');
+            });
+            
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.classList.add('active-section');
+            }
 
-            // Modifiers (Interactivity)
-            sciChartSurface.chartModifiers.add(
-                new ZoomPanModifier({ enableZoom: true }),
-                new ZoomExtentsModifier(),
-                new MouseWheelZoomModifier(),
-                new CursorModifier({
-                    crosshairStroke: "#ffffff",
-                    axisLabelFill: "#333333",
-                    axisLabelStroke: "#ffffff"
-                })
-            );
-
-            // Set Initial Range (Last 50 candles)
-            const lastIndex = data.xValues.length - 1;
-            const rangeStart = data.xValues[lastIndex - 50];
-            const rangeEnd = data.xValues[lastIndex];
-            xAxis.visibleRange = new NumberRange(rangeStart, rangeEnd);
+            // Specific Actions
+            if (sectionId === 'chart') {
+                loadTradingView();
+            }
         }
 
-        // --- 3. Misc Logic (Text Scramble & Counter) ---
-        class TextScramble {
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('flex');
+        }
+
+        // 2. TradingView Integration (Real Data)
+        let tvWidget = null;
+        function loadTradingView() {
+            const container = document.getElementById('tradingview_container');
+            if (container && container.innerHTML === "") {
+                new TradingView.widget({
+                    "width": "100%",
+                    "height": "100%",
+                    "symbol": "OANDA:XAUUSD", // Real Gold Data
+                    "interval": "60",
+                    "timezone": "Asia/Tehran",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "fa_IR",
+                    "toolbar_bg": "#000000",
+                    "enable_publishing": false,
+                    "hide_side_toolbar": false,
+                    "allow_symbol_change": true,
+                    "container_id": "tradingview_container"
+                });
+            }
+        }
+
+        // 3. Creative Background (Particle Network)
+        const canvas = document.getElementById('canvas-container');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 2;
+                this.speedX = (Math.random() * 1) - 0.5;
+                this.speedY = (Math.random() * 1) - 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX;
+                if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.width * canvas.height) / 15000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let x = Math.random() * canvas.width;
+                let y = Math.random() * canvas.height;
+                particlesArray.push(new Particle(x, y));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+                
+                // Draw connections
+                for (let j = i; j < particlesArray.length; j++) {
+                    const dx = particlesArray[i].x - particlesArray[j].x;
+                    const dy = particlesArray[i].y - particlesArray[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(100, 100, 100, ${1 - distance/100})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                        ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        initParticles();
+        animateParticles();
+
+        // 4. Text Scramble Effect
+        class ScrambleText {
             constructor(el) {
                 this.el = el;
-                this.chars = '!<>-_\\/[]{}—=+*^?#__________';
+                this.chars = '!<>-_\\/[]{}—=+*^?#';
                 this.update = this.update.bind(this);
             }
             setText(newText) {
@@ -545,7 +549,7 @@
                             char = this.chars[Math.floor(Math.random() * this.chars.length)];
                             this.queue[i].char = char;
                         }
-                        output += `<span class="text-gray-500">${char}</span>`;
+                        output += `<span class="text-brand-green">${char}</span>`;
                     } else {
                         output += from;
                     }
@@ -560,20 +564,20 @@
             }
         }
 
-        const phrases = ['کامیونیتی ترید', 'تحلیل تکنیکال', 'اهداف بزرگ', 'پارس ترید'];
-        const el = document.getElementById('mystery-text');
-        const fx = new TextScramble(el);
+        const phrases = ['PARS TRADE', 'BIG GOALS', 'COMMUNITY', 'FUTURE'];
+        const el = document.getElementById('scramble-text');
+        const fx = new ScrambleText(el);
         let counter = 0;
         
-        const nextPhrase = () => {
+        const next = () => {
             fx.setText(phrases[counter]).then(() => {
-                setTimeout(nextPhrase, 3000);
+                setTimeout(next, 3000);
             });
             counter = (counter + 1) % phrases.length;
         };
-        setTimeout(nextPhrase, 500);
+        setTimeout(next, 1000);
 
-        // Counter
+        // 5. Number Counter
         function animateValue(obj, start, end, duration) {
             let startTimestamp = null;
             const step = (timestamp) => {
@@ -586,17 +590,23 @@
             };
             window.requestAnimationFrame(step);
         }
-        setTimeout(() => {
-            animateValue(document.getElementById("counter-members"), 0, 9.5, 2000);
-        }, 1000);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+           setTimeout(() => {
+                animateValue(document.getElementById("counter"), 0, 9.5, 2000);
+           }, 500);
+        });
 
-        function handleSubmit(e) {
+        function submitForm(e) {
             e.preventDefault();
-            alert('پیام شما ارسال شد. با تشکر.');
+            alert('پیام شما با موفقیت برای @Parsfarsi ارسال شد!');
+            e.target.reset();
         }
     </script>
 </body>
 </html>
+
+
 
 
 
